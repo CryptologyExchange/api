@@ -84,35 +84,32 @@ pip install cryptology-client-python
 import asyncio
 from datetime import datetime
 
-from cryptology import ClientWriterStub, Keys, run_client
+from cryptology import ClientWriterStub, run_client
 
 async def main() -> None:
-    client_keys = Keys.load('keys/test.pub', 'keys/test.priv')
-    server_keys = Keys.load('keys/cryptology.pub', None)
-
-    async def writer(ws: ClientWriterStub, sequence_id: int) -> None:
+    async def writer(ws: ClientWriterStub) -> None:
+        client_order_id = 0
         while True:
             await asyncio.sleep(1)
-            sequence_id += 1
+            client_order_id += 1
             await ws.send_signed(
                 sequence_id=sequence_id,
                 payload={'@type': 'PlaceBuyLimitOrder',
                          'trade_pair': 'BTC_USD',
                          'amount': '2.3',
                          'price': '15000.1',
-                         'client_order_id': 123 + sequence_id,
+                         'client_order_id': 123 + client_order_id,
                          'ttl': 0
                         }
             )
 
-    async def read_callback(order: int, ts: datetime, payload: dict) -> None:
+    async def read_callback(ts: datetime, payload: dict) -> None:
         print(order, ts, payload)
 
     await run_client(
-        client_id='test',
-        client_keys=client_keys,
-        ws_addr='ws://127.0.0.1:8080',
-        server_keys=server_keys,
+        access_key='YOUR ACCESS KEY',
+        secret_key='YOUR SECRET KEY',
+        ws_addr='wss://api.sandbox.cryptology.com',
         writer=writer,
         read_callback=read_callback,
         last_seen_order=-1
@@ -122,6 +119,32 @@ async def main() -> None:
 ## Protocol
 
 ## Handshake
+Cliend sends message:
+
+> ```json
+> {
+>    "access_key": <access_key>,
+>    "secret_key": <secret_key>,
+>    "last_seen_order": <last_seen_order>,
+>    "version": <protocol_version>
+> }
+> ```
+where `<access_key>` is a client access key,
+      `<secret_key>` is a client secret key,
+      `<last_seen_order>` is last order which client got from a server in previous sessions,
+      `<protocol_version>` is a version of protocol
+
+
+Server respond next message:
+
+> ```json
+> {
+>    "last_seen_sequence": <last_seen_sequence>,
+>    "server_version": <server_version>
+> }
+>```
+where `<last_seen_sequence>` is a last `sequense_id` which server received from client,
+      `<server_version>` is a version of the server
 
 ## Messages
 
@@ -145,7 +168,6 @@ MESSAGE response example
 > ```json
 > {
 >     "response_type": "MESSAGE",
->     "transaction_id": 5736737433,
 >     "timestamp": 1533214317,
 >     "data":  {
 >         "@type": "BuyOrderCancelled",
@@ -166,8 +188,7 @@ THROTTLING response example
 > {
 >     "response_type": "THROTTLING",
 >     "overflow_level": 12800,
->     "sequence_id": 45,
->     "client_order_id": 763
+>     "sequence_id": 45
 > }
 > ```
 
@@ -188,7 +209,6 @@ Params:
 | response\_type  | enum | Response type                                                                                                                                                                                                                                                   | Yes      | Can have following value: MESSAGE, THROTTLING, ERROR |
 | sequence\_id    | int  | Unique identifier of performed operation. Auto processed by client library                                                                                                                                                                                      | Yes      |                                                      |
 | timestamp       | int  | Time of operation performed                                                                                                                                                                                                                                     | Yes      | Valid timestamp                                      |
-| transaction\_id | int  | An incremental (but not necessarily sequential) value indicating message order on server and used by the client to skip processed events on reconnect. TIMESTAMP indicates when a particular event happened on server. Payload is described in Server messages. | Yes      | Valid transaction id                                 |
 | data              | json | Body of message                                                                    | Yes |  |
 | overflow\_level   | int  | Amount of orders the client should postpone sending to keep up with the rate limit | Yes |  |
 | client\_order\_id | int  | Order id which sent by client                                                      | No  |  |
@@ -262,8 +282,8 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
 
 After a place order message is received by Cryptology (TBD) the
 following messages will be sent over web socket connection. All order
-related messages are partner specific (i.e. you can't receive any of
-these messages for regular user or other partner orders). The `time`
+related messages are user specific (i.e. you can't receive any of
+these messages for regular user or other user orders). The `time`
 parameter is a list of two integers. The first one is a UNIX timestamp
 in the UTC time zone. The second value is a number of microseconds.
 
@@ -356,7 +376,7 @@ in the UTC time zone. The second value is a number of microseconds.
 ### Wallet
 
 - `SetBalance`
-    :   sets a new partner balance for a given currency. `reason` can be
+    :   sets a new client balance for a given currency. `reason` can be
         `trade` or `on_hold` for the changes caused by trades,
         `transfer` for balance update by depositing money or `withdraw`
         as a result of a withdrawal.
