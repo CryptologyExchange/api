@@ -123,8 +123,8 @@ Cliend sends message  with next format:
 
 > ```json
 > {
->    "access_key": 'access key',
->    "secret_key": 'secret key',
+>    "access_key": "access key",
+>    "secret_key": "secret key",
 >    "last_seen_order": -1,
 >    "version": 6
 > }
