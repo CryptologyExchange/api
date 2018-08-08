@@ -119,32 +119,32 @@ async def main() -> None:
 ## Protocol
 
 ## Handshake
-Cliend sends message:
+Cliend sends message  with next format:
 
 > ```json
 > {
->    "access_key": <access_key>,
->    "secret_key": <secret_key>,
->    "last_seen_order": <last_seen_order>,
->    "version": <protocol_version>
+>    "access_key": 'access key',
+>    "secret_key": 'secret key',
+>    "last_seen_order": -1,
+>    "version": 6
 > }
 > ```
-where `<access_key>` is a client access key,
-      `<secret_key>` is a client secret key,
-      `<last_seen_order>` is last order which client got from a server in previous sessions,
-      `<protocol_version>` is a version of protocol
+where `access_key` is a client access key,
+      `secret_key` is a client secret key,
+      `last_seen_order` is last order which client got from a server in previous sessions or -1,
+      `protocol_version` is a version of protocol
 
 
-Server respond next message:
+Server respond message with next format:
 
 > ```json
 > {
->    "last_seen_sequence": <last_seen_sequence>,
->    "server_version": <server_version>
+>    "last_seen_sequence": 100000,
+>    "server_version": 6
 > }
 >```
-where `<last_seen_sequence>` is a last `sequense_id` which server received from client,
-      `<server_version>` is a version of the server
+where `last_seen_sequence` is a last `sequense_id` which server received from client,
+      `server_version` is a version of the server
 
 ## Messages
 
