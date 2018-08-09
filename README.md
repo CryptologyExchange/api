@@ -126,13 +126,16 @@ Cliend sends message  with next format:
 >    "access_key": "access key",
 >    "secret_key": "secret key",
 >    "last_seen_order": -1,
->    "version": 6
+>    "version": 6,
+>    "get_balances": true,
+>    "get_order_books": true
 > }
 > ```
 where `access_key` is a client access key,
       `secret_key` is a client secret key,
       `last_seen_order` is last order which client got from a server in previous sessions or -1,
-      `protocol_version` is a version of protocol
+      `protocol_version` is a version of protocol,
+      `get_balances` and `get_order_books` is optional flags which tells the server to send user balances and/or order books (default false)
 
 
 Server respond message with next format:
@@ -140,11 +143,13 @@ Server respond message with next format:
 > ```json
 > {
 >    "last_seen_sequence": 100000,
->    "server_version": 6
-> }
+>    "server_version": 6,
+>    "state": {"order_books": {}}
+>  }
 >```
 where `last_seen_sequence` is a last `sequense_id` which server received from client,
-      `server_version` is a version of the server
+      `server_version` is a version of the server,
+      `state` is optional field which can contain order_books and/or balances
 
 ## Messages
 
