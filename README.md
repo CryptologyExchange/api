@@ -407,6 +407,50 @@ in the UTC time zone. The second value is a number of microseconds.
 }
 ```
 
+- `DepositTransactionAccepted`
+    :   indicates transaction information when depositing funds to the
+        account
+
+```json
+{
+    "@type": "DepositTransactionAccepted",
+    "currency": "BTC"
+    "amount": "0.1",
+    "transaction_info": {
+        "to_address": "0x49293a856169d46dbf789c89b51b2ca6c7d1c4f50x4",
+        "blockchain_tx_ids": [
+            "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
+        ]
+    }
+    "time": [
+        946684800,
+        0
+    ]
+}
+```
+
+- `WithdrawTransactionAccepted`
+    :   indicates transaction information when withdrawing funds from
+        the account
+
+```json
+{
+    "@type": "WithdrawTransactionAccepted",
+    "currency": "BTC"
+    "amount": "0.1",
+    "transaction_info": {
+        "to_address": "0x49293a856169d46dbf789c89b51b2ca6c7d1c4f50x4",
+        "blockchain_tx_ids": [
+            "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
+        ]
+    }
+    "time": [
+        946684800,
+        0
+    ]
+}
+```
+
 ### General
 
 - `OwnTrade`
