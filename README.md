@@ -133,9 +133,9 @@ Cliend sends message  with next format:
 > ```
 where `access_key` is a client access key,
       `secret_key` is a client secret key,
-      `last_seen_order` is last order which client got from a server in previous sessions or -1,
+      `last_seen_order` is the last order which client got from a server in previous sessions or -1,
       `protocol_version` is a version of protocol,
-      `get_balances` and `get_order_books` is optional flags which tells the server to send user balances and/or order books (default false)
+      `get_balances` and `get_order_books` are optional flags which ask the server to send user balances and/or order books (default false)
 
 
 Server respond message with next format:
@@ -409,6 +409,50 @@ in the UTC time zone. The second value is a number of microseconds.
     "@type": "InsufficientFunds",
     "order_id": 1,
     "currency": "USD"
+}
+```
+
+- `DepositTransactionAccepted`
+    :   indicates transaction information when depositing funds to the
+        account
+
+```json
+{
+    "@type": "DepositTransactionAccepted",
+    "currency": "BTC",
+    "amount": "0.1",
+    "transaction_info": {
+        "to_address": "0x49293a856169d46dbf789c89b51b2ca6c7d1c4f50x4",
+        "blockchain_tx_ids": [
+            "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
+        ]
+    },
+    "time": [
+        946684800,
+        0
+    ]
+}
+```
+
+- `WithdrawalTransactionAccepted`
+    :   indicates transaction information when withdrawing funds from
+        the account
+
+```json
+{
+    "@type": "WithdrawalTransactionAccepted",
+    "currency": "BTC",
+    "amount": "0.1",
+    "transaction_info": {
+        "to_address": "0x49293a856169d46dbf789c89b51b2ca6c7d1c4f50x4",
+        "blockchain_tx_ids": [
+            "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
+        ]
+    },
+    "time": [
+        946684800,
+        0
+    ]
 }
 ```
 
