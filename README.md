@@ -87,7 +87,7 @@ from datetime import datetime
 from cryptology import ClientWriterStub, run_client
 
 async def main() -> None:
-    async def writer(ws: ClientWriterStub) -> None:
+    async def writer(ws: ClientWriterStub, state: Dict) -> None:
         client_order_id = 0
         while True:
             await asyncio.sleep(1)
