@@ -174,6 +174,7 @@ MESSAGE response example
 > {
 >     "response_type": "MESSAGE",
 >     "timestamp": 1533214317,
+>     "message_id": 4763856,
 >     "data":  {
 >         "@type": "BuyOrderCancelled",
 >         "order_id": 1,
@@ -213,6 +214,7 @@ Params:
 | --------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------- |
 | response\_type  | enum | Response type                                                                                                                                                                                                                                                   | Yes      | Can have following value: MESSAGE, THROTTLING, ERROR |
 | sequence\_id    | int  | Unique identifier of performed operation. Auto processed by client library                                                                                                                                                                                      | Yes      |                                                      |
+| message\_id     | int  | Is an incremental (but not necessarily sequential) value indicating message order on server and used by the client to skip processed events on reconnect                                                                                                        | Yes      |                                                      |
 | timestamp       | int  | Time of operation performed                                                                                                                                                                                                                                     | Yes      | Valid timestamp                                      |
 | data              | json | Body of message                                                                    | Yes |  |
 | overflow\_level   | int  | Amount of orders the client should postpone sending to keep up with the rate limit | Yes |  |
