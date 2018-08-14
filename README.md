@@ -103,8 +103,8 @@ async def main() -> None:
                         }
             )
 
-    async def read_callback(ts: datetime, payload: dict) -> None:
-        print(order, ts, payload)
+    async def read_callback(ts: datetime, message_id: int, payload: dict) -> None:
+        print(order, ts, message_id, payload)
 
     await run_client(
         access_key='YOUR ACCESS KEY',
@@ -112,7 +112,7 @@ async def main() -> None:
         ws_addr='wss://api.sandbox.cryptology.com',
         writer=writer,
         read_callback=read_callback,
-        last_seen_order=-1
+        last_seen_message_id=-1
     )
 ```
 
@@ -125,7 +125,7 @@ Cliend sends message  with next format:
 > {
 >    "access_key": "access key",
 >    "secret_key": "secret key",
->    "last_seen_order": -1,
+>    "last_seen_message_id": -1,
 >    "version": 6,
 >    "get_balances": true,
 >    "get_order_books": true
@@ -133,7 +133,7 @@ Cliend sends message  with next format:
 > ```
 where `access_key` is a client access key,
       `secret_key` is a client secret key,
-      `last_seen_order` is the last order which client got from a server in previous sessions or -1,
+      `last_seen_message_id` is the last message id which client got from a server in previous sessions or -1,
       `protocol_version` is a version of protocol,
       `get_balances` and `get_order_books` are optional flags which ask the server to send user balances and/or order books (default false)
 
