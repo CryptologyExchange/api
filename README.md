@@ -90,7 +90,7 @@ https://cryptology.com
 ## Installation
 
 ``` {.sourceCode .bash}
-pip install cryptology-client-python
+pip install git+https://github.com/CryptologyExchange/cryptology-ws-client-python.git
 ```
 
 ## Usage
