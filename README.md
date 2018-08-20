@@ -139,7 +139,7 @@ async def main() -> None:
 
 ## Handshake
 
-###Cliend sends message  with next format:
+### Cliend sends message  with next format:
 
 
 ```json
@@ -165,7 +165,7 @@ async def main() -> None:
 |`get_order_books`|optional flags which ask the server to send user order books (default: false)|
 
 
-###Server respond message with next format:
+### Server respond message with next format:
 
 ```json
 {
@@ -195,10 +195,10 @@ Request example
  }
 ```
 
-There are following types of server response messages: MESSAGE, THROTTLING,
-ERROR.
+There are following types of server response messages: **MESSAGE**, **THROTTLING**,
+**ERROR**.
 
-MESSAGE response example
+**MESSAGE** response example:
 
 ```json
 {
@@ -218,7 +218,7 @@ MESSAGE response example
 }
 ```
 
-THROTTLING response example
+**THROTTLING** response example:
 
 ```json
 {
@@ -228,7 +228,7 @@ THROTTLING response example
 }
 ```
 
-ERROR response example
+**ERROR** response example:
 
 ```json
 {
@@ -238,41 +238,34 @@ ERROR response example
 }
 ```
 
-Params:
+**Params:**
 
 | Name            | Type | Description                                                                                                                                                                                                                                                     | Required | Constraints                                          |
 | --------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------- |
-| response\_type  | enum | Response type                                                                                                                                                                                                                                                   | Yes      | Can have following value: MESSAGE, THROTTLING, ERROR |
-| sequence\_id    | int  | Unique identifier of performed operation. Auto processed by client library                                                                                                                                                                                      | Yes      |                                                      |
-| message\_id     | int  | Is an incremental (but not necessarily sequential) value indicating message order on server and used by the client to skip processed events on reconnect                                                                                                        | Yes      |                                                      |
-| timestamp       | int  | Time of operation performed                                                                                                                                                                                                                                     | Yes      | Valid timestamp                                      |
-| data              | json | Body of message                                                                    | Yes |  |
-| overflow\_level   | int  | Amount of orders the client should postpone sending to keep up with the rate limit | Yes |  |
-| client\_order\_id | int  | Order id which sent by client                                                      | No  |  |
-| error\_type       | enum | Error type `ERROR_TYPE`                                                            | Yes |  |
-| error\_message    | str  | Error description                                                                  | Yes |  |
+| `response_type`  | enum | Response type                                                                                                                                                                                                                                                   | Yes      | Can have following value: MESSAGE, THROTTLING, ERROR |
+| `sequence_id`    | int  | Unique identifier of performed operation. Auto processed by client library                                                                                                                                                                                      | Yes      |                                                      |
+| `message_id`     | int  | Is an incremental (but not necessarily sequential) value indicating message order on server and used by the client to skip processed events on reconnect                                                                                                        | Yes      |                                                      |
+| `timestamp`       | int  | Time of operation performed                                                                                                                                                                                                                                     | Yes      | Valid timestamp                                      |
+| `data`              | json | Body of message                                                                    | Yes |  |
+| `overflow_level`   | int  | Amount of orders the client should postpone sending to keep up with the rate limit | Yes |  |
+| `client_order_id` | int  | Order id which sent by client                                                      | No  |  |
+| `error_type`       | enum | Error type `ERROR_TYPE`                                                            | Yes |  |
+| `error_message`    | str  | Error description                                                                  | Yes |  |
 
 and `ERROR_TYPE` determines an error type:
 
-- DUPLICATE\_CLIENT\_ORDER\_ID error
-    :   `client_order_id` must be a unique field for each order created.
-        `DUPLICATE_CLIENT_ORDER_ID` means that `client_order_id` in the
-        sent message is not unique.
+| `ERROR_TYPE`    | Description          |
+| :-------------: |:-------------|
+| `DUPLICATE_CLIENT_ORDER_ID error`  | `client_order_id` must be a unique field for each order created. `DUPLICATE_CLIENT_ORDER_ID` means that `client_order_id` in the sent message is not unique.|
+ `INVALID_PAYLOAD error`  | All client messages must be in a valid JSON format and contain all the required fields. `INVALID_PAYLOAD` means that client sends an invalid JSON or any required parameter is not sent.|
+| `UNKNOWN_ERROR error`  | Any other errors. |
 
-- INVALID\_PAYLOAD error
-    :   All client messages must be in a valid JSON format and contain
-        all the required fields. `INVALID_PAYLOAD` means that client
-        sends an invalid JSON or any required parameter is not sent.
-
-- UNKNOWN\_ERROR error
-    :   Any other errors.
-
-## Market data protocol
+# Market data protocol
 
 Market data is broadcasted via web socket. It is read only
 and has no integrity checks aside of Web Socket built-in mechanisms.
 
-### Messages
+## Messages
 
 - `OrderBookAgg`
     :   aggregated order book for given symbol, recalculated after each
