@@ -138,7 +138,7 @@ async def main() -> None:
 ## Protocol
 
 ## Handshake
-Cliend sends message  with next format:
+###Cliend sends message  with next format:
 
 > ```json
 > {
