@@ -70,12 +70,29 @@ wss://marketdata.sandbox.cryptology.com
 
 **Website:**
 
+https://sandbox.cryptology.com
+
+## Production
+
+**Production URLs:**
+For production use the following URLs.
+
+Trading API:
+wss://api.cryptology.com
+
+Market Data API:
+wss://marketdata.cryptology.com
+
+**Website:**
+
 https://cryptology.com
 
 ## Installation
 
+Receive your own API access key and secret key throught our web-site, and proceed instalation.
+
 ``` {.sourceCode .bash}
-pip install cryptology-client-python
+pip install git+https://github.com/CryptologyExchange/cryptology-ws-client-python.git
 ```
 
 ## Usage
@@ -87,7 +104,7 @@ from datetime import datetime
 from cryptology import ClientWriterStub, run_client
 
 async def main() -> None:
-    async def writer(ws: ClientWriterStub) -> None:
+    async def writer(ws: ClientWriterStub, state: Dict) -> None:
         client_order_id = 0
         while True:
             await asyncio.sleep(1)
@@ -103,8 +120,8 @@ async def main() -> None:
                         }
             )
 
-    async def read_callback(ts: datetime, payload: dict) -> None:
-        print(order, ts, payload)
+    async def read_callback(ts: datetime, message_id: int, payload: dict) -> None:
+        print(order, ts, message_id, payload)
 
     await run_client(
         access_key='YOUR ACCESS KEY',
@@ -112,7 +129,7 @@ async def main() -> None:
         ws_addr='wss://api.sandbox.cryptology.com',
         writer=writer,
         read_callback=read_callback,
-        last_seen_order=-1
+        last_seen_message_id=-1
     )
 ```
 
@@ -125,7 +142,7 @@ Cliend sends message  with next format:
 > {
 >    "access_key": "access key",
 >    "secret_key": "secret key",
->    "last_seen_order": -1,
+>    "last_seen_message_id": -1,
 >    "version": 6,
 >    "get_balances": true,
 >    "get_order_books": true
@@ -133,7 +150,7 @@ Cliend sends message  with next format:
 > ```
 where `access_key` is a client access key,
       `secret_key` is a client secret key,
-      `last_seen_order` is the last order which client got from a server in previous sessions or -1,
+      `last_seen_message_id` is the last message id which client got from a server in previous sessions or -1,
       `protocol_version` is a version of protocol,
       `get_balances` and `get_order_books` are optional flags which ask the server to send user balances and/or order books (default false)
 
@@ -174,6 +191,7 @@ MESSAGE response example
 > {
 >     "response_type": "MESSAGE",
 >     "timestamp": 1533214317,
+>     "message_id": 4763856,
 >     "data":  {
 >         "@type": "BuyOrderCancelled",
 >         "order_id": 1,
@@ -213,6 +231,7 @@ Params:
 | --------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------- |
 | response\_type  | enum | Response type                                                                                                                                                                                                                                                   | Yes      | Can have following value: MESSAGE, THROTTLING, ERROR |
 | sequence\_id    | int  | Unique identifier of performed operation. Auto processed by client library                                                                                                                                                                                      | Yes      |                                                      |
+| message\_id     | int  | Is an incremental (but not necessarily sequential) value indicating message order on server and used by the client to skip processed events on reconnect                                                                                                        | Yes      |                                                      |
 | timestamp       | int  | Time of operation performed                                                                                                                                                                                                                                     | Yes      | Valid timestamp                                      |
 | data              | json | Body of message                                                                    | Yes |  |
 | overflow\_level   | int  | Amount of orders the client should postpone sending to keep up with the rate limit | Yes |  |
@@ -539,5 +558,3 @@ minute granularity). 0 means valid forever.
     "@type": "CancelAllOrders"
 }
 ```
-
-
