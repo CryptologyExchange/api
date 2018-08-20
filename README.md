@@ -260,6 +260,17 @@ and `ERROR_TYPE` determines an error type:
  `INVALID_PAYLOAD error`  | All client messages must be in a valid JSON format and contain all the required fields. `INVALID_PAYLOAD` means that client sends an invalid JSON or any required parameter is not sent.|
 | `UNKNOWN_ERROR error`  | Any other errors. |
 
+
+### Critical errors
+Some errors can cause connection closing
+
+|Error text | Description |
+| ----------|-------------|
+|Authentication Failed|  Invalid or removed access/secret key pair. Send correct access/secret key pair|
+|Trade for This Access Key Not Permitted | Generate another access/secret key pair with trade permission|
+|Your IP Address Has No Permission for This Access Key  | Generate another access/secret key pair and set up IPs to access|
+|Two Simultaneous Connections| You can connect to API with one access key per one connection only|
+
 # Market data protocol
 
 Market data is broadcasted via web socket. It is read only
