@@ -95,6 +95,10 @@ pip install git+https://github.com/CryptologyExchange/cryptology-ws-client-pytho
 
 ## Usage
 
+Example of connection throught our official Python client library for the Cryptology exchange WebSocket API.
+
+*For more information see our [documentation](https://github.com/CryptologyExchange/cryptology-ws-client-python) about our official Python client library*
+
 ``` {.sourceCode .python3}
 import asyncio
 from datetime import datetime
