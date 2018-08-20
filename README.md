@@ -153,7 +153,7 @@ async def main() -> None:
  }
 
 ```
- 
+
 
 | Name       | Description          |
 | :-------------: |:-------------|
@@ -185,58 +185,58 @@ async def main() -> None:
 
 Request example
 
-> ```json
-> {
->     "sequence_id": 1212,
->     "data": {
->         "@type": "CancelOrder",
->         "order_id": 42
->     }
-> }
-> ```
+```json
+{
+    "sequence_id": 1212,
+    "data": {
+         "@type": "CancelOrder",
+         "order_id": 42
+     }
+ }
+```
 
 There are following types of server response messages: MESSAGE, THROTTLING,
 ERROR.
 
 MESSAGE response example
 
-> ```json
-> {
->     "response_type": "MESSAGE",
->     "timestamp": 1533214317,
->     "message_id": 4763856,
->     "data":  {
->         "@type": "BuyOrderCancelled",
->         "order_id": 1,
->         "time": [
->             946684800,
->             0
->         ],
->         "trade_pair": "BTC_USD",
->         "client_order_id": 123
->     }
-> }
-> ```
+```json
+{
+    "response_type": "MESSAGE",
+    "timestamp": 1533214317,
+    "message_id": 4763856,
+    "data":  {
+        "@type": "BuyOrderCancelled",
+        "order_id": 1,
+        "time": [
+            946684800,
+            0
+        ],
+        "trade_pair": "BTC_USD",
+        "client_order_id": 123
+    }
+}
+```
 
 THROTTLING response example
 
-> ```json
-> {
->     "response_type": "THROTTLING",
->     "overflow_level": 12800,
->     "sequence_id": 45
-> }
-> ```
+```json
+{
+    "response_type": "THROTTLING",
+    "overflow_level": 12800,
+    "sequence_id": 45
+}
+```
 
 ERROR response example
 
-> ```json
-> {
->     "response_type": "ERROR",
->     "error_type": "DUPLICATE_CLIENT_ORDER_ID",
->     "error_message": "Client order id 345 is already exists"
-> }
-> ```
+```json
+{
+    "response_type": "ERROR",
+    "error_type": "DUPLICATE_CLIENT_ORDER_ID",
+    "error_message": "Client order id 345 is already exists"
+}
+```
 
 Params:
 
