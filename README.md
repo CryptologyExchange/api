@@ -265,7 +265,7 @@ and `ERROR_TYPE` determines an error type:
 Some errors can cause connection closing
 
 |Error text | Description |
-| ----------|-------------|
+| :----------:|:-------------|
 |Authentication Failed|  Invalid or removed access/secret key pair. Send correct access/secret key pair|
 |Trade for This Access Key Not Permitted | Generate another access/secret key pair with trade permission|
 |Your IP Address Has No Permission for This Access Key  | Generate another access/secret key pair and set up IPs to access|
