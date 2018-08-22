@@ -19,6 +19,17 @@ Cryptology market operates a first come - first serve, order matching. Orders ar
 
 Valid orders sent to the matching engine are confirmed immediately and are in the received state. If an order executes against another order immediately, the order is considered done. An order can execute in part or whole. Any part of the order not filled immediately, will be considered open. Orders will stay in the open state until canceled or subsequently filled by new orders. Orders that are no longer eligible for matching (filled or canceled) are in the done state.
 
+CurrentCurrently WS API supports the following limit orders types: fill or kill (FOK) orders, immediate or cancel (IOK) orders, good 'til canceled (GTC) orders.
+
+A Fill or kill (FOK) is a type of time-in-force designation used in securities trading that instructs an exchange to execute a transaction immediately and completely or not at all. The order must be filled in its entirety or canceled (killed).
+
+An immediate or cancel order (IOC) is an order to buy or sell a security that must be immediately filled. Any unfilled portion of the order is canceled.
+
+A good ’til canceled (GTC) describes an order a trader may place to buy or sell a security that remains active until either the order is filled or the trader cancels it.
+
+GTC order supports Time In Force instruction. Time in force is a special instruction used when placing a trade to indicate how long an order will remain active before it is executed or expires. These options are especially important for active traders and allow them to be more specific about the time parameters.
+
+
 ## Fees
 
 ### Trading Fees
@@ -262,7 +273,7 @@ and `ERROR_TYPE` determines an error type:
 
 
 ### Critical errors
-Some errors can cause connection closing
+Some errors can cause server connection closing
 
 |Error text | Description |
 | :----------:|:-------------|
@@ -302,8 +313,7 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
 
 - `AnonymousTrade`
     :   a trade has taken place. `time` has two parts - integer seconds
-        and integer milliseconds UTC. `maker_buy` shows if the maker was
-        the buyer part.
+        and integer milliseconds UTC. `maker_buy` is true if maker is a buyer. If maker is a seller it is false. If maker is a buyer than taker is a seller and conversely.
 
 ```json
 {
@@ -435,6 +445,7 @@ in the UTC time zone. The second value is a number of microseconds.
             ]
         }
 ```
+`change` is amount by which the balance has changed. Positive if it increased and negative if decreased.
 
 - `InsufficientFunds`
     :   indicates that an account doesn't have enough funds to place an
@@ -449,7 +460,7 @@ in the UTC time zone. The second value is a number of microseconds.
 ```
 
 - `DepositTransactionAccepted`
-    :   indicates transaction information when depositing funds to the
+    :   indicates transaction information when depositing crypto funds to the
         account
 
 ```json
@@ -471,7 +482,7 @@ in the UTC time zone. The second value is a number of microseconds.
 ```
 
 - `WithdrawalTransactionAccepted`
-    :   indicates transaction information when withdrawing funds from
+    :   indicates transaction information when withdrawing crypto funds from
         the account
 
 ```json
