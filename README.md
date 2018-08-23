@@ -1,4 +1,3 @@
-
 # Welcome to Cryptology community exchange documentation!
 
 # Introduction
@@ -9,11 +8,22 @@ APIs are separated into two categories: trading and feed. Access to APIs require
 
 By accessing the Cryptology Data API, you agree to [Terms & Conditions](https://cryptology.com/legal/terms/)
 
+To access the Trading API server, add an access/secret key pair on [Account](https://cryptology.com/app/account) / [API](https://cryptology.com/app/account/api) section of Cryptology website.
+You can generate one or more key pairs.
+
 # General information
 
 ## Matching orders
 
 Cryptology market operates a first come - first serve, order matching. Orders are executed as received by the matching engine, from the older to newer received orders.
+
+## Self-Trade Prevention
+
+To discourage wash trading, Cryptology exchange cancels smaller order and
+decreases larger order size by the smaller order size when two orders
+from the same client cross. Yet Cryptology charges taker fee for the smaller order.
+ If the two orders are the same size, both will be canceled, yet 
+ Cryptology will charge taker fee for one order.
 
 ### Order Lifecycle
 
@@ -146,11 +156,15 @@ async def main() -> None:
     )
 ```
 
-# Protocol
+# Trading protocol
+
+Cryptology API operates over the WebSocket protocol with PING heartbeat being sent every 4 seconds (for details about WebSocket protocol, read [RFC 6455](https://tools.ietf.org/html/rfc6455)).
+
+
 
 ## Handshake
 
-### Cliend sends message  with next format:
+### Client sends message  with next format:
 
 
 ```json
