@@ -5,23 +5,23 @@
 
 Welcome to Cryptology trader and developer documentation. These documents outline exchange functionality, market details, and APIs.
 
-APIs are separated into two categories: trading and feed. Access to APIs require authentication and provide access to placing orders, provide market data and other account information. 
+APIs are separated into two categories: trading and feed. Access to APIs requires authentication and provides access for placing orders, provides market data and other account information.
 
-By accessing the Cryptology Data API, you agree to [Terms & Conditions](https://cryptology.com/legal/terms/)
+By accessing the Cryptology Data API, you agree to the [Terms & Conditions](https://cryptology.com/legal/terms/)
 
 # General information
 
 ## Matching orders
 
-Cryptology market operates a first come - first serve, order matching. Orders are executed as received by the matching engine, from the older to newer received orders.
+Cryptology market operates a first come-first serve order matching. Orders are executed as received by the matching engine, from the older to newer received orders.
 
 ### Order Lifecycle
 
-Valid orders sent to the matching engine are confirmed immediately and are in the received state. If an order executes against another order immediately, the order is considered done. An order can execute in part or whole. Any part of the order not filled immediately, will be considered open. Orders will stay in the open state until canceled or subsequently filled by new orders. Orders that are no longer eligible for matching (filled or canceled) are in the done state.
+Valid orders sent to the matching engine are confirmed immediately and are in the received state. If an order executes against another order immediately, the order is considered done. An order can execute in part or whole. Any part of an order not filled immediately, will be considered open. Orders will stay in the open state until canceled or subsequently filled by new orders. Orders that are no longer eligible for matching (filled or canceled) are in the done state.
 
 CurrentCurrently WS API supports the following limit orders types: fill or kill (FOK) orders, immediate or cancel (IOK) orders, good 'til canceled (GTC) orders.
 
-A Fill or kill (FOK) is a type of time-in-force designation used in securities trading that instructs an exchange to execute a transaction immediately and completely or not at all. The order must be filled in its entirety or canceled (killed).
+A fill or kill (FOK) is a type of time-in-force designation used in securities trading that instructs an exchange to execute a transaction immediately and completely or not at all. The order must be filled in its entirety or canceled (killed).
 
 An immediate or cancel order (IOC) is an order to buy or sell a security that must be immediately filled. Any unfilled portion of the order is canceled.
 
@@ -46,7 +46,7 @@ Market taker: 0.02%
 
 Card deposits: 3.5%
 
-Wire transfers: 0
+Wire transfers: 0%
 
 **Withdrawals:**
 
@@ -54,7 +54,7 @@ BTC: 0.0005;
 
 BCH, LTC: 0.0003;
 
-ETH: 0,009
+ETH: 0.009
 
 EUR: €7 per SEPA transfer
 
@@ -106,7 +106,7 @@ pip install git+https://github.com/CryptologyExchange/cryptology-ws-client-pytho
 
 ## Usage
 
-Example of connection throught our official Python client library for the Cryptology exchange WebSocket API.
+Example of connection through our official Python client library for the Cryptology exchange WebSocket API.
 
 *For more information see our [documentation](https://github.com/CryptologyExchange/cryptology-ws-client-python) about our official Python client library*
 
@@ -150,7 +150,7 @@ async def main() -> None:
 
 ## Handshake
 
-### Cliend sends message  with next format:
+### Client sends a message with the following format:
 
 
 ```json
@@ -176,7 +176,7 @@ async def main() -> None:
 |`get_order_books`|optional flags which ask the server to send user order books (default: false)|
 
 
-### Server respond message with next format:
+### Server responds with the following format:
 
 ```json
 {
@@ -190,7 +190,7 @@ async def main() -> None:
 | `last_seen_sequence`  | is a last `sequense_id` which server received from client|
  `sequense_id`  | is the unique ID of current user request to the server|
 | `server_version`  | is a version of the server |
-| `state` | is optional field which can contain order_books and/or balances|
+| `state` | is an optional field which can contain order_books and/or balances|
 
 ## Messages
 
@@ -206,7 +206,7 @@ Request example
  }
 ```
 
-There are following types of server response messages: **MESSAGE**, **THROTTLING**,
+There are the following types of server response messages: **MESSAGE**, **THROTTLING**,
 **ERROR**.
 
 **MESSAGE** response example:
@@ -245,7 +245,7 @@ There are following types of server response messages: **MESSAGE**, **THROTTLING
 {
     "response_type": "ERROR",
     "error_type": "DUPLICATE_CLIENT_ORDER_ID",
-    "error_message": "Client order id 345 is already exists"
+    "error_message": "Client order id 345 already exists"
 }
 ```
 
@@ -253,17 +253,17 @@ There are following types of server response messages: **MESSAGE**, **THROTTLING
 
 | Name            | Type | Description                                                                                                                                                                                                                                                     | Required | Constraints                                          |
 | --------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------- |
-| `response_type`  | enum | Response type                                                                                                                                                                                                                                                   | Yes      | Can have following value: MESSAGE, THROTTLING, ERROR |
+| `response_type`  | enum | Response type                                                                                                                                                                                                                                                   | Yes      | Can have the following values: MESSAGE, THROTTLING, ERROR |
 | `sequence_id`    | int  | Unique identifier of performed operation. Auto processed by client library                                                                                                                                                                                      | Yes      |                                                      |
 | `message_id`     | int  | Is an incremental (but not necessarily sequential) value indicating message order on server and used by the client to skip processed events on reconnect                                                                                                        | Yes      |                                                      |
 | `timestamp`       | int  | Time of operation performed                                                                                                                                                                                                                                     | Yes      | Valid timestamp                                      |
 | `data`              | json | Body of message                                                                    | Yes |  |
 | `overflow_level`   | int  | Amount of orders the client should postpone sending to keep up with the rate limit | Yes |  |
-| `client_order_id` | int  | Order id which sent by client                                                      | No  |  |
+| `client_order_id` | int  | Order id which is sent by client                                                      | No  |  |
 | `error_type`       | enum | Error type `ERROR_TYPE`                                                            | Yes |  |
 | `error_message`    | str  | Error description                                                                  | Yes |  |
 
-and `ERROR_TYPE` determines an error type:
+`ERROR_TYPE` determines an error type:
 
 | `ERROR_TYPE`    | Description          |
 | :-------------: |:-------------|
@@ -290,12 +290,9 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
 ## Messages
 
 - `OrderBookAgg`
-    :   aggregated order book for given symbol, recalculated after each
-        order book change (most likely will be throttled to reasonable
-        interval in future). May have empty dictionaries `buy_levels` or
-        `sell_levels` in case of an empty order book. Both dictionaries
-        use the price as a key and volume as a value. `current_order_id`
-        denotes the order that leads to the state of the order book.
+    :   aggregated order book for a given symbol, recalculated after each
+    order book change (most likely will be throttled to reasonable interval in future). May have empty dictionaries `buy_levels` or `sell_levels` in case of an empty order book. Both dictionaries use the price as a key and volume as a value. `current_order_id`
+denotes the order that leads to the state of the order book.
 
 ```json
 {
@@ -331,12 +328,7 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
 
 ### Order lifecycle
 
-After a place order message is received by Cryptology (TBD) the
-following messages will be sent over web socket connection. All order
-related messages are user specific (i.e. you can't receive any of
-these messages for regular user or other user orders). The `time`
-parameter is a list of two integers. The first one is a UNIX timestamp
-in the UTC time zone. The second value is a number of microseconds.
+After a place order message is received by Cryptology (TBD) the following messages will be sent over web socket connection. All order-related messages are user specific (i.e. you can't receive any of these messages for regular or other user orders). The `time` parameter is a list of two integers. The first one is a UNIX timestamp in the UTC time zone. The second is a number of microseconds.
 
 - `BuyOrderPlaced`, `SellOrderPlaced`
     :   order was received by cryptology. `closed_inline` indicates an
