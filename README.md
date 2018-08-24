@@ -533,6 +533,30 @@ After a place order message is received by Cryptology (TBD) the following messag
 }
 ```
 
+- `SelfTrade`
+     :   sent when the account perform self trading.
+         `maker_buy` equals `true` if the opposite order was a buy order.
+
+```json
+{
+    "@type": "SelfTrade",
+    "time": [
+        946684800,
+        0
+    ],
+    "trade_pair": "BTC_USD",
+    "amount": "1",
+    "price": "1",
+    "maker_buy": false,
+    "opposite_currency": "BTC",
+    "opposite_order_id": 0,
+    "currency": "USD",
+    "order_id": 1,
+    "fee": "0.0002",
+    "client_order_id": 123
+}
+```
+
 ## Client messages
 
 ### Order placement
