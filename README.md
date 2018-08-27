@@ -567,7 +567,7 @@ After a place order message is received by Cryptology (TBD) the following messag
 
 ## Client messages
 
-### Order placement
+### Limit Order Placement
 
 - `PlaceBuyLimitOrder`
     :   limit bid
@@ -587,7 +587,7 @@ After a place order message is received by Cryptology (TBD) the following messag
 - `PlaceSellIoCOrder`
     :   immediate or cancel ask
 
-all order placement messages share the same structure
+all limit order placement messages share the same structure
 
 ```json
 {
@@ -599,6 +599,33 @@ all order placement messages share the same structure
     "ttl": 0
 }
 ```
+
+### Stop-Limit Order Placement
+
+- `PriceLowerCondition`
+    : stop-limit order to sell
+
+- `PriceGreaterCondition`
+    : stop-limit order to buy
+
+all stop-limit order placement messages share the same structure
+
+```json5
+{
+    "@type": "PriceLowerCondition",
+    // stop price
+     "price": "5000",
+     "order": {
+         "trade_pair": "BTC_USD",
+         // limit price
+         "price": "4900",
+         "amount": "1",
+         "client_order_id": 243,
+         "ttl": 0
+     }
+}
+```
+
 
 `client_order_id` is a tag to relate server messages to client ones.
 `ttl` is the time the order is valid for. Measured in seconds (with 1
