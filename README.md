@@ -25,7 +25,15 @@ from the same client cross. Yet Cryptology charges taker fee for the smaller ord
  If the two orders are the same size, both will be canceled, yet 
  Cryptology will charge taker fee for one order.
 
-### Order Lifecycle
+## Rate limit
+
+Currently Cryptology has a rate limit of 10 requests per second. If you reach
+this limit you will receive a message with `THROTTLING` response type and
+`overflow_level` param which must be used for waiting `overflow_level`
+milliseconds.
+
+
+## Order Lifecycle
 
 Valid orders sent to the matching engine are confirmed immediately and are in the received state. If an order executes against another order immediately, the order is considered done. An order can execute in part or whole. Any part of an order not filled immediately, will be considered open. Orders will stay in the open state until canceled or subsequently filled by new orders. Orders that are no longer eligible for matching (filled or canceled) are in the done state.
 
