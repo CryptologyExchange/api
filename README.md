@@ -204,15 +204,17 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 {
     "last_seen_sequence": 100000,
     "server_version": 6,
-    "state": {"order_books": {}}
+    "state": {"order_books": {}},
+    "greeting": "Welcome to Cryptology API Server"
   }
 ```
 | Name       | Description          |
 | :-------------: |:-------------|
 | `last_seen_sequence`  | is a last `sequense_id` which server received from client|
- `sequense_id`  | is the unique ID of current user request to the server|
+| `sequense_id`  | is the unique ID of current user request to the server|
 | `server_version`  | is a version of the server |
 | `state` | is an optional field which can contain order_books and/or balances|
+
 
 ## Messages
 
