@@ -140,8 +140,7 @@ async def main() -> None:
         while True:
             await asyncio.sleep(1)
             client_order_id += 1
-            await ws.send_signed(
-                sequence_id=sequence_id,
+            await ws.send_message(
                 payload={'@type': 'PlaceBuyLimitOrder',
                          'trade_pair': 'BTC_USD',
                          'amount': '2.3',
