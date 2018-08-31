@@ -627,3 +627,17 @@ minute granularity). 0 means valid forever.
 ```
 
 
+### Order moving
+
+You can change order `price` or `ttl` without manually cancelling and creating it
+with new params.
+For this purpose, you can use `MoveOrder` message.
+
+```json
+{
+    "@type": "MoveOrder",
+    "order_id": 42,
+    "price": "100.75",
+    "ttl": 0
+}
+```
