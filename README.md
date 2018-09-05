@@ -312,40 +312,40 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
 
 ## Messages
 
-- `OrderBookAgg`
+-   `OrderBookAgg`
     :   aggregated order book for a given symbol, recalculated after each
     order book change (most likely will be throttled to reasonable interval in future). May have empty dictionaries `buy_levels` or `sell_levels` in case of an empty order book. Both dictionaries use the price as a key and volume as a value. `current_order_id`
-denotes the order that leads to the state of the order book.
+    denotes the order that leads to the state of the order book.
 
-```json
-{
-    "@type": "OrderBookAgg",
-    "buy_levels": {
-        "1": "1"
-    },
-    "sell_levels": {
-        "0.1": "1"
-    },
-    "trade_pair": "BTC_USD",
-    "current_order_id": 123456
-}
-```
+    ```json
+    {
+        "@type": "OrderBookAgg",
+        "buy_levels": {
+            "1": "1"
+        },
+        "sell_levels": {
+            "0.1": "1"
+        },
+        "trade_pair": "BTC_USD",
+        "current_order_id": 123456
+    }
+    ```
 
-- `AnonymousTrade`
+-   `AnonymousTrade`
     :   a trade has taken place. `time` has two parts - integer seconds
         and integer milliseconds UTC. `maker_buy` is true if maker is a buyer. If maker is a seller it is false. If maker is a buyer than taker is a seller and conversely.
 
-```json
-{
-    "@type": "AnonymousTrade",
-    "time": [1530093825, 0],
-    "trade_pair": "BTC_USD",
-    "current_order_id": 123456,
-    "amount": "42.42",
-    "price": "555",
-    "maker_buy": false,
-}
-```
+    ```json
+    {
+        "@type": "AnonymousTrade",
+        "time": [1530093825, 0],
+        "trade_pair": "BTC_USD",
+        "current_order_id": 123456,
+        "amount": "42.42",
+        "price": "555",
+        "maker_buy": false
+    }
+    ```
 
 ## Server messages
 
@@ -353,7 +353,7 @@ denotes the order that leads to the state of the order book.
 
 After a place order message is received by Cryptology (TBD) the following messages will be sent over web socket connection. All order-related messages are user specific (i.e. you can't receive any of these messages for regular or other user orders). The `time` parameter is a list of two integers. The first one is a UNIX timestamp in the UTC time zone. The second is a number of microseconds.
 
-- `BuyOrderPlaced`, `SellOrderPlaced`
+-   `BuyOrderPlaced`, `SellOrderPlaced`
     :   order was received by cryptology. `closed_inline` indicates an
         order that was fully executed immediately, it’s safe not to
         expect (and, therefore ignore) other messages for this order.
@@ -361,210 +361,261 @@ After a place order message is received by Cryptology (TBD) the following messag
         order size while `amount` is the part of the order left after
         instant order execution and placed to the order book.
 
-```json
-{
-    "@type": "BuyOrderPlaced",
-    "amount": "1",
-    "initial_amount": "3",
-    "closed_inline": false,
-    "order_id": 1,
-    "price": "1",
-    "time": [
-        946684800,
-        0
-    ],
-    "trade_pair": "BTC_USD",
-    "client_order_id": 123
-}
-```
+    ```json
+    {
+        "@type": "BuyOrderPlaced",
+        "amount": "1",
+        "initial_amount": "3",
+        "closed_inline": false,
+        "order_id": 1,
+        "price": "1",
+        "time": [
+            946684800,
+            0
+        ],
+        "trade_pair": "BTC_USD",
+        "client_order_id": 123
+    }
+    ```
 
-- `BuyOrderAmountChanged`, `SellOrderAmountChanged`
+-   `BuyOrderAmountChanged`, `SellOrderAmountChanged`
     :   order was partially executed, sets a new amount
 
-```json
-{
-    "@type": "BuyOrderAmountChanged",
-    "amount": "1",
-    "order_id": 1,
-    "fee": "0.002",
-    "time": [
-        946684800,
-        0
-    ],
-    "trade_pair": "BTC_USD",
-    "client_order_id": 123
-}
-```
+    ```json
+    {
+        "@type": "BuyOrderAmountChanged",
+        "amount": "1",
+        "order_id": 1,
+        "fee": "0.002",
+        "time": [
+            946684800,
+            0
+        ],
+        "trade_pair": "BTC_USD",
+        "client_order_id": 123
+    }
+    ```
 
-- `BuyOrderCancelled`, `SellOrderCancelled`
+-   `BuyOrderCancelled`, `SellOrderCancelled`
     :   order was canceled (manual, TTL, IOC, FOK, tbd), end of order
         lifecycle
+    
+    ```json
+    {
+        "@type": "BuyOrderCancelled",
+        "order_id": 1,
+        "time": [
+            946684800,
+            0
+        ],
+        "trade_pair": "BTC_USD",
+        "client_order_id": 123
+    }
+    ```
 
-```json
-{
-    "@type": "BuyOrderCancelled",
-    "order_id": 1,
-    "time": [
-        946684800,
-        0
-    ],
-    "trade_pair": "BTC_USD",
-    "client_order_id": 123
-}
-```
-
-- `BuyOrderClosed`, `SellOrderClosed`
+-   `BuyOrderClosed`, `SellOrderClosed`
     :   order was fully executed, end of order lifecycle
 
-```json
-{
-    "@type": "BuyOrderClosed",
-    "order_id": 1,
-    "time": [
-        946684800,
-        0
-    ],
-    "trade_pair": "BTC_USD",
-    "client_order_id": 123
-}
-```
+    ```json
+    {
+        "@type": "BuyOrderClosed",
+        "order_id": 1,
+        "time": [
+            946684800,
+            0
+        ],
+        "trade_pair": "BTC_USD",
+        "client_order_id": 123
+    }
+    ```
 
-- `OrderNotFound`
+-   `OrderNotFound`
     :   attempt to cancel a non-existing order was made
 
-```json
-{
-    "@type": "OrderNotFound",
-    "order_id": 1
-}
-```
+    ```json
+    {
+        "@type": "OrderNotFound",
+        "order_id": 1
+    }
+    ```
 
 ### Wallet
 
-- `SetBalance`
+-   `SetBalance`
     :   sets a new client balance for a given currency. `reason` can be
         `trade` or `on_hold` for the changes caused by trades,
         `transfer` for balance update by depositing money or `withdraw`
         as a result of a withdrawal.
 
-```json
-        {
-            "@type": "SetBalance",
-            "balance": "1",
-            "change": "1",
-            "currency": "USD",
-            "reason": "trade",
-            "time": [
-                946684800,
-                0
-            ]
-        }
-```
-`change` is amount by which the balance has changed. Positive if it increased and negative if decreased.
+    ```json
+            {
+                "@type": "SetBalance",
+                "balance": "1",
+                "change": "1",
+                "currency": "USD",
+                "reason": "trade",
+                "time": [
+                    946684800,
+                    0
+                ]
+            }
+    ```
+    `change` is amount by which the balance has changed. Positive if it increased and negative if decreased.
 
-- `InsufficientFunds`
+-   `InsufficientFunds`
     :   indicates that an account doesn't have enough funds to place an
         order
+    
+    ```json
+    {
+        "@type": "InsufficientFunds",
+        "order_id": 1,
+        "currency": "USD"
+    }
+    ```
 
-```json
-{
-    "@type": "InsufficientFunds",
-    "order_id": 1,
-    "currency": "USD"
-}
-```
+-   `WithdrawalInitializedSuccess`
+    : indicates that withdrawal is initialized and will be performed.
 
-- `DepositTransactionAccepted`
+    ```json
+    {
+        "@type": "WithdrawalInitializedSuccess",
+        "currency": "BTC",
+        "amount": "0.1",
+        "to_wallet": "your_wallet_address",
+        "payment_id": "54085bc9-d699-443a-ab3e-2160e9d2e38e"
+    }
+    ```
+
+    `your_wallett_address`  is your wallet address where payment will
+    be transferred, `payment_id` is a unique payment identifier.
+
+-   `DepositAddressGenerated`
+    : returns generated address for crypto deposits.
+
+    ```json
+    {
+        "@type": "DepositAddressGenerated",
+        "currency": "BTC",
+        "wallet_address": "your_deposit_wallet_address"
+    }
+    ```
+
+    `your_deposit_wallet_address` is your wallet address for deposits.
+
+
+-   `DepositTransactionAccepted`
     :   indicates transaction information when depositing crypto funds to the
         account
 
-```json
-{
-    "@type": "DepositTransactionAccepted",
-    "currency": "BTC",
-    "amount": "0.1",
-    "transaction_info": {
-        "to_address": "0x49293a856169d46dbf789c89b51b2ca6c7d1c4f50x4",
-        "blockchain_tx_ids": [
-            "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
+    ```json
+    {
+        "@type": "DepositTransactionAccepted",
+        "currency": "BTC",
+        "amount": "0.1",
+        "transaction_info": {
+            "to_address": "0x49293a856169d46dbf789c89b51b2ca6c7d1c4f50x4",
+            "blockchain_tx_ids": [
+                "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
+            ],
+            "payment_id": "55085bc3-d699-243a-ab3e-1960e9d2e08e"
+        },
+        "time": [
+            946684800,
+            0
         ]
-    },
-    "time": [
-        946684800,
-        0
-    ]
-}
-```
+    }
+    ```
 
-- `WithdrawalTransactionAccepted`
+-   `WithdrawalTransactionAccepted`
     :   indicates transaction information when withdrawing crypto funds from
         the account
 
-```json
-{
-    "@type": "WithdrawalTransactionAccepted",
-    "currency": "BTC",
-    "amount": "0.1",
-    "transaction_info": {
-        "to_address": "0x49293a856169d46dbf789c89b51b2ca6c7d1c4f50x4",
-        "blockchain_tx_ids": [
-            "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
+    ```json
+    {
+        "@type": "WithdrawalTransactionAccepted",
+        "currency": "BTC",
+        "amount": "0.1",
+        "transaction_info": {
+            "to_address": "0x49293a856169d46dbf789c89b51b2ca6c7d1c4f50x4",
+            "blockchain_tx_ids": [
+                "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
+            ],
+            "payment_id": "54085bc9-d699-443a-ab3e-2160e9d2e38e"
+        },
+        "time": [
+            946684800,
+            0
         ]
-    },
-    "time": [
-        946684800,
-        0
-    ]
-}
-```
+    }
+    ```
+
+-   `DepositAddressGeneratingError`
+    :    indicates that generating deposit address finished with error
+    ```json
+    {
+        "@type": "DepositAddressGeneratingError",
+        "message": "Multiple addresses is not allowed"
+    }
+    ```
+
+-   `WithdrawalError`
+    :    indicates that withdrawal not performed because error caused
+    ```json
+    {
+        "@type": "WithdrawalError",
+        "message": "Minimum withdrawal value is not reached"
+    }
+    ```
+    
 
 ### General
 
-- `OwnTrade`
+-   `OwnTrade`
      :   sent when the account participated in a deal on either side.
          `maker` equals `true` if the account was a maker. `maker_buy`
          equals `true` if the maker side was buying.
 
-```json
-{
-    "@type": "OwnTrade",
-    "time": [
-        946684800,
-        0
-    ],
-    "trade_pair": "BTC_USD",
-    "amount": "1",
-    "price": "1",
-    "maker": true,
-    "maker_buy": false,
-    "order_id": 1,
-    "client_order_id": 123
-}
-```
+    ```json
+    {
+        "@type": "OwnTrade",
+        "time": [
+            946684800,
+            0
+        ],
+        "trade_pair": "BTC_USD",
+        "amount": "1",
+        "price": "1",
+        "maker": true,
+        "maker_buy": false,
+        "order_id": 1,
+        "client_order_id": 123
+    }
+    ```
 
-- `SelfTrade`
+-    `SelfTrade`
      :   sent when the account perform self trading.
          `maker_buy` equals `true` if the opposite order was a buy order.
 
-```json
-{
-    "@type": "SelfTrade",
-    "time": [
-        946684800,
-        0
-    ],
-    "trade_pair": "BTC_USD",
-    "amount": "1",
-    "price": "1",
-    "maker_buy": false,
-    "opposite_currency": "BTC",
-    "opposite_order_id": 0,
-    "currency": "USD",
-    "order_id": 1,
-    "fee": "0.0002",
-    "client_order_id": 123
-}
-```
+     ```json
+     {
+         "@type": "SelfTrade",
+         "time": [
+             946684800,
+             0
+         ],
+         "trade_pair": "BTC_USD",
+         "amount": "1",
+         "price": "1",
+         "maker_buy": false,
+         "opposite_currency": "BTC",
+         "opposite_order_id": 0,
+         "currency": "USD",
+         "order_id": 1,
+         "fee": "0.0002",
+         "client_order_id": 123
+     }
+     ```
 
 ## Client messages
 
@@ -634,24 +685,24 @@ minute granularity). 0 means valid forever.
 
 ### Order cancelation
 
-- `CancelOrder`
+-   `CancelOrder`
     :   cancel any order
 
-```json
-{
-    "@type": "CancelOrder",
-    "order_id": 42
-}
-```
+    ```json
+    {
+        "@type": "CancelOrder",
+        "order_id": 42
+    }
+    ```
 
-- `CancelAllOrders`
+-   `CancelAllOrders`
     :   cancel all active orders opened by the client
 
-```json
-{
-    "@type": "CancelAllOrders"
-}
-```
+    ```json
+    {
+        "@type": "CancelAllOrders"
+    }
+    ```
 
 
 ### Order moving
@@ -668,3 +719,42 @@ For this purpose, you can use `MoveOrder` message.
     "ttl": 0
 }
 ```
+
+
+### Wallet
+
+-   For initializing crypto withdrawal to saved wallet address you can
+    use `WithdrawCrypto` message.
+
+    ```json
+    {
+        "@type": "WithdrawCrypto",
+        "currency": "BTC",
+        "amount": "0.32",
+        "to_wallet": "your_wallet_address"
+    }
+    ```
+
+    where `your_wallet_address` is your saved wallet address.
+    After sending this message, you can receive
+    `WithdrawalInitializedSuccess` or `WithdrawalError` message.
+    See Server Messages / [Wallet](#wallet) Section for details.
+
+-   For generating crypto address for deposit to your account you can 
+    use `GenerateDepositAddress` message.
+
+     ```json
+    {
+        "@type": "GenerateDepositAddress",
+        "currency": "LTC",
+        "create_new": true
+    }
+    ```
+
+    where `create_new` flag means that if you already have generated an address,
+    it will be returned. Otherwise, a new address will be generated if it is
+    permitted for your account. After sending this message, you can receive
+    `DepositAddressGenerated` or `DepositAddressGeneratingError` message.
+    See Server Messages / [Wallet](#wallet) Section for details.
+
+
