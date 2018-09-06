@@ -126,7 +126,9 @@ pip install git+https://github.com/CryptologyExchange/cryptology-ws-client-pytho
 
 Example of connection through our official Python client library for the Cryptology exchange WebSocket API.
 
-*For more information see our [documentation](https://github.com/CryptologyExchange/cryptology-ws-client-python) about our official Python client library*
+*For more information see our [documentation](https://github.com/CryptologyExchange/cryptology-ws-client-python)
+about our official Python client library and 
+[Writing Your Own Trading Bot from Scratch](https://github.com/CryptologyExchange/api/blob/master/trading_bot.md) tutorial*
 
 ``` {.sourceCode .python3}
 import asyncio
