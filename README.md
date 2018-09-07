@@ -226,7 +226,8 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
     "last_seen_sequence": 100000,
     "server_version": 6,
     "state": {"order_books": {}},
-    "greeting": "Welcome to Cryptology API Server"
+    "greeting": "Welcome to Cryptology API Server",
+    "trade_pairs": ["BTC_USD", "LTC_BTC", "ETH_USD"]
   }
 ```
 | Name       | Description          |
@@ -235,6 +236,7 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 | `sequense_id`  | is the unique ID of current user request to the server|
 | `server_version`  | is a version of the server |
 | `state` | is an optional field which can contain order_books and/or balances|
+| `trade_pairs` | is an available trade pairs|
 
 
 ## Messages
