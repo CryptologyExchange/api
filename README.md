@@ -292,7 +292,8 @@ There are the following types of server response messages: **MESSAGE**, **THROTT
 {
     "response_type": "THROTTLING",
     "overflow_level": 12800,
-    "sequence_id": 45
+    "sequence_id": 45,
+    "message": "You have reached the maximum number of requests per second. Please try again in 12.8 seconds."
 }
 ```
 
