@@ -203,7 +203,7 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
     "last_seen_message_id": -1,
     "version": 6,
     "get_balances": true,
-    "get_order_books": true
+    "get_order_books": false
  }
 
 ```
@@ -216,7 +216,7 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 | `last_seen_message_id` | is the last message id which client got from a server in previous sessions or -1|
 | `protocol_version` | is a version of protocol|
 | `get_balances`| optional flags which ask the server to send user balances and (default: false)|
-|`get_order_books`|optional flags which ask the server to send user order books (default: false)|
+| `get_order_books`|optional flags which ask the server to send user order books (default: false)|
 
 
 ### Server responds with the following format:
@@ -225,7 +225,16 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 {
     "last_seen_sequence": 100000,
     "server_version": 6,
-    "state": {"order_books": {}},
+    "state": {
+        "message_id": 5367625,
+        "balances": {"BTC": {"available": "1",
+                             "holded": "0"
+                            },
+                     "USD": {"available": "1000",
+                             "holded": "120.25"
+                            }
+                    }
+             },
     "greeting": "Welcome to Cryptology API Server",
     "trade_pairs": ["BTC_USD", "LTC_BTC", "ETH_USD"]
   }
@@ -235,8 +244,9 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 | `last_seen_sequence`  | is a last `sequense_id` which server received from client|
 | `sequense_id`  | is the unique ID of current user request to the server|
 | `server_version`  | is a version of the server |
-| `state` | is an optional field which can contain order_books and/or balances|
+| `state` | is an optional field which can contain current order_books and/or balances|
 | `trade_pairs` | is an available trade pairs|
+| `message_id` | is a message id at which a `state` is created |
 
 
 ## Messages
