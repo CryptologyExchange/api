@@ -386,7 +386,7 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
 
 ### Order lifecycle
 
-After a place order message is received by Cryptology (TBD) the following messages will be sent over web socket connection. All order-related messages are user specific (i.e. you can't receive any of these messages for regular or other user orders). The `time` parameter is a list of two integers. The first one is a UNIX timestamp in the UTC time zone. The second is a number of microseconds.
+After a place order message is received by Cryptology the following messages will be sent over web socket connection. All order-related messages are user specific (i.e. you can't receive any of these messages for regular or other user orders). The `time` parameter is a list of two integers. The first one is a UNIX timestamp in the UTC time zone. The second is a number of microseconds.
 
 -   `BuyOrderPlaced`, `SellOrderPlaced`
     :   order was received by cryptology. `closed_inline` indicates an
