@@ -117,6 +117,8 @@ wss://marketdata.cryptology.com
 [https://cryptology.com] (https://cryptology.com)
 
 # Websocket API
+
+
 ## Installation
 
 
