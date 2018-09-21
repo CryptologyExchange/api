@@ -37,13 +37,13 @@ milliseconds.
 
 Valid orders sent to the matching engine are confirmed immediately and are in the received state. If an order executes against another order immediately, the order is considered done. An order can execute in part or whole. Any part of an order not filled immediately, will be considered open. Orders will stay in the open state until canceled or subsequently filled by new orders. Orders that are no longer eligible for matching (filled or canceled) are in the done state.
 
-CurrentCurrently WS API supports the following limit orders types: fill or kill (FOK) orders, immediate or cancel (IOK) orders, good 'til canceled (GTC) orders.
+Currently WS API supports the following limit orders types: fill or kill (**FOK**) orders, immediate or cancel (**IOK**) orders, good 'til canceled (**GTC**) orders.
 
-A fill or kill (FOK) is a type of time-in-force designation used in securities trading that instructs an exchange to execute a transaction immediately and completely or not at all. The order must be filled in its entirety or canceled (killed).
+A fill or kill (**FOK**) is a type of time-in-force designation used in securities trading that instructs an exchange to execute a transaction immediately and completely or not at all. The order must be filled in its entirety or canceled (killed).
 
-An immediate or cancel order (IOC) is an order to buy or sell a security that must be immediately filled. Any unfilled portion of the order is canceled.
+An immediate or cancel order (**IOC**) is an order to buy or sell a security that must be immediately filled. Any unfilled portion of the order is canceled.
 
-A good ’til canceled (GTC) describes an order a trader may place to buy or sell a security that remains active until either the order is filled or the trader cancels it.
+A good ’til canceled (**GTC**) describes an order a trader may place to buy or sell a security that remains active until either the order is filled or the trader cancels it.
 
 GTC order supports Time In Force instruction. Time in force is a special instruction used when placing a trade to indicate how long an order will remain active before it is executed or expires. These options are especially important for active traders and allow them to be more specific about the time parameters.
 
@@ -99,7 +99,7 @@ wss://marketdata.sandbox.cryptology.com
 
 **Website:**
 
-https://sandbox.cryptology.com
+[https://sandbox.cryptology.com] (https://sandbox.cryptology.com)
 
 ## Production
 
@@ -114,12 +114,15 @@ wss://marketdata.cryptology.com
 
 **Website:**
 
-https://cryptology.com
+[https://cryptology.com] (https://cryptology.com)
 
+# Websocket API
 ## Installation
+
 
 ``` {.sourceCode .bash}
 pip install git+https://github.com/CryptologyExchange/cryptology-ws-client-python.git
+
 ```
 
 ## Usage
@@ -185,7 +188,7 @@ if __name__ == '__main__':
     loop.run_until_complete(main())
 ```
 
-# Trading protocol
+# WS Trading protocol
 
 Cryptology API operates over the WebSocket protocol with PING heartbeat being sent every 4 seconds (for details about WebSocket protocol, read [RFC 6455](https://tools.ietf.org/html/rfc6455)).
 
@@ -239,6 +242,7 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
     "trade_pairs": ["BTC_USD", "LTC_BTC", "ETH_USD"]
   }
 ```
+
 | Name       | Description          |
 | :-------------: |:-------------|
 | `last_seen_sequence`  | is a last `sequense_id` which server received from client|
@@ -340,7 +344,7 @@ Some errors can cause server connection closing
 |Your IP Address Has No Permission for This Access Key  | Generate another access/secret key pair and set up IPs to access|
 |Two Simultaneous Connections| You can connect to API with one access key per one connection only|
 
-# Market data protocol
+# WS Market data protocol
 
 Market data is broadcasted via web socket. It is read only
 and has no integrity checks aside of Web Socket built-in mechanisms.
@@ -351,6 +355,7 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
     :   aggregated order book for a given symbol, recalculated after each
     order book change (most likely will be throttled to reasonable interval in future). May have empty dictionaries `buy_levels` or `sell_levels` in case of an empty order book. Both dictionaries use the price as a key and volume as a value. `current_order_id`
     denotes the order that leads to the state of the order book.
+
 
     ```json
     {
@@ -364,12 +369,15 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
         "trade_pair": "BTC_USD",
         "current_order_id": 123456
     }
+    
     ```
+
 
 -   `AnonymousTrade`
     :   a trade has taken place. `time` has two parts - integer seconds
         and integer milliseconds UTC. `maker_buy` is true if maker is a buyer. If maker is a seller it is false. If maker is a buyer than taker is a seller and conversely.
 
+    
     ```json
     {
         "@type": "AnonymousTrade",
@@ -380,7 +388,9 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
         "price": "555",
         "maker_buy": false
     }
+    
     ```
+    
 
 ## Server messages
 
@@ -451,6 +461,8 @@ After a place order message is received by Cryptology the following messages wil
 -   `BuyOrderClosed`, `SellOrderClosed`
     :   order was fully executed, end of order lifecycle
 
+   
+   
     ```json
     {
         "@type": "BuyOrderClosed",
@@ -462,17 +474,25 @@ After a place order message is received by Cryptology the following messages wil
         "trade_pair": "BTC_USD",
         "client_order_id": 123
     }
+    
     ```
+    
+    
 
 -   `OrderNotFound`
     :   attempt to cancel a non-existing order was made
 
+    
+    
     ```json
     {
         "@type": "OrderNotFound",
         "order_id": 1
     }
+    
     ```
+
+
 
 ### Wallet
 
@@ -482,6 +502,8 @@ After a place order message is received by Cryptology the following messages wil
         `transfer` for balance update by depositing money or `withdraw`
         as a result of a withdrawal.
 
+    
+    
     ```json
             {
                 "@type": "SetBalance",
@@ -494,12 +516,17 @@ After a place order message is received by Cryptology the following messages wil
                     0
                 ]
             }
+    
     ```
+    
+    
     `change` is amount by which the balance has changed. Positive if it increased and negative if decreased.
 
 -   `InsufficientFunds`
     :   indicates that an account doesn't have enough funds to place an
         order
+    
+    
     
     ```json
     {
@@ -507,11 +534,15 @@ After a place order message is received by Cryptology the following messages wil
         "order_id": 1,
         "currency": "USD"
     }
+    
     ```
+    
+    
 
 -   `WithdrawalInitializedSuccess`
     : indicates that withdrawal is initialized and will be performed.
 
+    
     ```json
     {
         "@type": "WithdrawalInitializedSuccess",
@@ -520,7 +551,10 @@ After a place order message is received by Cryptology the following messages wil
         "to_wallet": "your_wallet_address",
         "payment_id": "54085bc9-d699-443a-ab3e-2160e9d2e38e"
     }
+    
     ```
+    
+    
 
     `your_wallett_address`  is your wallet address where payment will
     be transferred, `payment_id` is a unique payment identifier.
@@ -528,13 +562,17 @@ After a place order message is received by Cryptology the following messages wil
 -   `DepositAddressGenerated`
     : returns generated address for crypto deposits.
 
+    
     ```json
     {
         "@type": "DepositAddressGenerated",
         "currency": "BTC",
         "wallet_address": "your_deposit_wallet_address"
     }
+    
     ```
+    
+    
 
     `your_deposit_wallet_address` is your wallet address for deposits.
 
@@ -542,6 +580,7 @@ After a place order message is received by Cryptology the following messages wil
 -   `DepositTransactionAccepted`
     :   indicates transaction information when depositing crypto funds to the
         account
+
 
     ```json
     {
@@ -560,12 +599,17 @@ After a place order message is received by Cryptology the following messages wil
             0
         ]
     }
+    
     ```
+    
+    
 
 -   `WithdrawalTransactionAccepted`
     :   indicates transaction information when withdrawing crypto funds from
         the account
 
+    
+    
     ```json
     {
         "@type": "WithdrawalTransactionAccepted",
@@ -583,25 +627,36 @@ After a place order message is received by Cryptology the following messages wil
             0
         ]
     }
+    
     ```
+    
+    
 
 -   `DepositAddressGeneratingError`
     :    indicates that generating deposit address finished with error
+    
+    
     ```json
     {
         "@type": "DepositAddressGeneratingError",
         "message": "Multiple addresses is not allowed"
     }
     ```
+    
+    
 
 -   `WithdrawalError`
     :    indicates that withdrawal not performed because error caused
+    
+    
     ```json
     {
         "@type": "WithdrawalError",
         "message": "Minimum withdrawal value is not reached"
     }
     ```
+    
+  
     
 
 ### General
@@ -611,6 +666,7 @@ After a place order message is received by Cryptology the following messages wil
          `maker` equals `true` if the account was a maker. `maker_buy`
          equals `true` if the maker side was buying.
 
+    
     ```json
     {
         "@type": "OwnTrade",
@@ -626,11 +682,15 @@ After a place order message is received by Cryptology the following messages wil
         "order_id": 1,
         "client_order_id": 123
     }
+    
     ```
+    
+    
 
 -    `SelfTrade`
      :   sent when the account perform self trading.
          `maker_buy` equals `true` if the opposite order was a buy order.
+
 
      ```json
      {
@@ -650,7 +710,10 @@ After a place order message is received by Cryptology the following messages wil
          "fee": "0.0002",
          "client_order_id": 123
      }
+     
      ```
+     
+     
 
 ## Client messages
 
@@ -676,6 +739,7 @@ After a place order message is received by Cryptology the following messages wil
 
 all limit order placement messages share the same structure
 
+
 ```json
 {
     "@type": "PlaceBuyLimitOrder",
@@ -685,7 +749,10 @@ all limit order placement messages share the same structure
     "client_order_id": 123,
     "ttl": 0
 }
+
 ```
+
+
 
 ### Stop-Limit Order Placement
 
@@ -696,6 +763,8 @@ all limit order placement messages share the same structure
     : stop-limit order to buy
 
 all stop-limit order placement messages share the same structure
+
+
 
 ```json5
 {
@@ -711,7 +780,11 @@ all stop-limit order placement messages share the same structure
          "ttl": 0
      }
 }
+
+
 ```
+
+
 
 
 `client_order_id` is a tag to relate server messages to client ones.
@@ -723,21 +796,28 @@ minute granularity). 0 means valid forever.
 -   `CancelOrder`
     :   cancel any order
 
+    
     ```json
     {
         "@type": "CancelOrder",
         "order_id": 42
     }
+    
     ```
+    
+    
 
 -   `CancelAllOrders`
     :   cancel all active orders opened by the client
 
+    
     ```json
     {
         "@type": "CancelAllOrders"
     }
+    
     ```
+    
 
 
 ### Order moving
@@ -746,6 +826,8 @@ You can change order `price` or `ttl` without manually cancelling and creating i
 with new params.
 For this purpose, you can use `MoveOrder` message.
 
+
+
 ```json
 {
     "@type": "MoveOrder",
@@ -753,7 +835,10 @@ For this purpose, you can use `MoveOrder` message.
     "price": "100.75",
     "ttl": 0
 }
+
 ```
+
+
 
 
 ### Wallet
@@ -761,6 +846,7 @@ For this purpose, you can use `MoveOrder` message.
 -   For initializing crypto withdrawal to saved wallet address you can
     use `WithdrawCrypto` message.
 
+    
     ```json
     {
         "@type": "WithdrawCrypto",
@@ -768,7 +854,9 @@ For this purpose, you can use `MoveOrder` message.
         "amount": "0.32",
         "to_wallet": "your_wallet_address"
     }
+    
     ```
+
 
     where `your_wallet_address` is your saved wallet address.
     After sending this message, you can receive
@@ -777,15 +865,21 @@ For this purpose, you can use `MoveOrder` message.
 
 -   For generating crypto address for deposit to your account you can 
     use `GenerateDepositAddress` message.
-
+    
+    
+     
      ```json
     {
         "@type": "GenerateDepositAddress",
         "currency": "LTC",
         "create_new": true
     }
+    
+    
     ```
-
+    
+    
+    
     where `create_new` flag means that if you already have generated an address,
     it will be returned. Otherwise, a new address will be generated if it is
     permitted for your account. After sending this message, you can receive
