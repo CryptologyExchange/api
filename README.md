@@ -200,6 +200,7 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 
 ### Client sends a message with the following format:
 
+> Example of client message:
 
 ```json
  {
@@ -225,6 +226,8 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 
 
 ### Server responds with the following format:
+
+> Example of server respond:
 
 ```json
 {
@@ -257,7 +260,7 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 
 ## Messages
 
-Request example
+> Request example
 
 ```json
 {
@@ -272,7 +275,7 @@ Request example
 There are the following types of server response messages: **MESSAGE**, **THROTTLING**,
 **ERROR**.
 
-**MESSAGE** response example:
+> **MESSAGE** response example:
 
 ```json
 {
@@ -292,7 +295,7 @@ There are the following types of server response messages: **MESSAGE**, **THROTT
 }
 ```
 
-**THROTTLING** response example:
+> **THROTTLING** response example:
 
 ```json
 {
@@ -303,7 +306,7 @@ There are the following types of server response messages: **MESSAGE**, **THROTT
 }
 ```
 
-**ERROR** response example:
+> **ERROR** response example:
 
 ```json
 {
@@ -358,8 +361,9 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
     order book change (most likely will be throttled to reasonable interval in future). May have empty dictionaries `buy_levels` or `sell_levels` in case of an empty order book. Both dictionaries use the price as a key and volume as a value. `current_order_id`
     denotes the order that leads to the state of the order book.
 
+> OrderBookAgg:
 
-    ```json
+   ```json
     {
         "@type": "OrderBookAgg",
         "buy_levels": {
@@ -372,15 +376,17 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
         "current_order_id": 123456
     }
     
-    ```
+   ```
 
 
 -   `AnonymousTrade`
     :   a trade has taken place. `time` has two parts - integer seconds
         and integer milliseconds UTC. `maker_buy` is true if maker is a buyer. If maker is a seller it is false. If maker is a buyer than taker is a seller and conversely.
 
-    
-    ```json
+
+> AnonymousTrade:
+   
+   ```json
     {
         "@type": "AnonymousTrade",
         "time": [1530093825, 0],
@@ -391,7 +397,7 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
         "maker_buy": false
     }
     
-    ```
+   ```
     
 
 ## Server messages
@@ -408,7 +414,11 @@ After a place order message is received by Cryptology the following messages wil
         order size while `amount` is the part of the order left after
         instant order execution and placed to the order book.
 
-    ```json
+
+> BuyOrderPlaced / SellOrderPlaced
+ 
+
+   ```json
     {
         "@type": "BuyOrderPlaced",
         "amount": "1",
@@ -423,12 +433,15 @@ After a place order message is received by Cryptology the following messages wil
         "trade_pair": "BTC_USD",
         "client_order_id": 123
     }
-    ```
+   ```
+
 
 -   `BuyOrderAmountChanged`, `SellOrderAmountChanged`
     :   order was partially executed, sets a new amount
 
-    ```json
+> BuyOrderAmountChanged / SellOrderAmountChanged
+
+   ```json
     {
         "@type": "BuyOrderAmountChanged",
         "amount": "1",
@@ -441,13 +454,16 @@ After a place order message is received by Cryptology the following messages wil
         "trade_pair": "BTC_USD",
         "client_order_id": 123
     }
-    ```
+   ```
 
 -   `BuyOrderCancelled`, `SellOrderCancelled`
     :   order was canceled (manual, TTL, IOC, FOK, tbd), end of order
         lifecycle
+  
+> BuyOrderCancelled / SellOrderCancelled    
     
-    ```json
+    
+   ```json
     {
         "@type": "BuyOrderCancelled",
         "order_id": 1,
@@ -458,14 +474,15 @@ After a place order message is received by Cryptology the following messages wil
         "trade_pair": "BTC_USD",
         "client_order_id": 123
     }
-    ```
+   ```
+
 
 -   `BuyOrderClosed`, `SellOrderClosed`
     :   order was fully executed, end of order lifecycle
 
+> BuyOrderClosed / SellOrderClosed   
    
-   
-    ```json
+   ```json
     {
         "@type": "BuyOrderClosed",
         "order_id": 1,
@@ -477,7 +494,7 @@ After a place order message is received by Cryptology the following messages wil
         "client_order_id": 123
     }
     
-    ```
+   ```
     
     
 
@@ -485,14 +502,16 @@ After a place order message is received by Cryptology the following messages wil
     :   attempt to cancel a non-existing order was made
 
     
+> OrderNotFound 
     
-    ```json
+    
+   ```json
     {
         "@type": "OrderNotFound",
         "order_id": 1
     }
     
-    ```
+   ```
 
 
 
@@ -504,9 +523,9 @@ After a place order message is received by Cryptology the following messages wil
         `transfer` for balance update by depositing money or `withdraw`
         as a result of a withdrawal.
 
+> SetBalance
     
-    
-    ```json
+   ```json
             {
                 "@type": "SetBalance",
                 "balance": "1",
@@ -519,33 +538,35 @@ After a place order message is received by Cryptology the following messages wil
                 ]
             }
     
-    ```
+   ```
+     
     
-    
-    `change` is amount by which the balance has changed. Positive if it increased and negative if decreased.
+> `change` is amount by which the balance has changed. Positive if it increased and negative if decreased.
 
 -   `InsufficientFunds`
     :   indicates that an account doesn't have enough funds to place an
         order
     
+> InsufficientFunds  
     
-    
-    ```json
+   ```json
     {
         "@type": "InsufficientFunds",
         "order_id": 1,
         "currency": "USD"
     }
     
-    ```
+   ```
     
     
 
 -   `WithdrawalInitializedSuccess`
     : indicates that withdrawal is initialized and will be performed.
 
-    
-    ```json
+
+> WithdrawalInitializedSuccess
+
+   ```json
     {
         "@type": "WithdrawalInitializedSuccess",
         "currency": "BTC",
@@ -554,37 +575,38 @@ After a place order message is received by Cryptology the following messages wil
         "payment_id": "54085bc9-d699-443a-ab3e-2160e9d2e38e"
     }
     
-    ```
+   ```
     
     
 
-    `your_wallett_address`  is your wallet address where payment will
+> `your_wallett_address`  is your wallet address where payment will
     be transferred, `payment_id` is a unique payment identifier.
 
 -   `DepositAddressGenerated`
     : returns generated address for crypto deposits.
 
+> DepositAddressGenerated    
     
-    ```json
+   ```json
     {
         "@type": "DepositAddressGenerated",
         "currency": "BTC",
         "wallet_address": "your_deposit_wallet_address"
     }
     
-    ```
+   ```
     
     
-
-    `your_deposit_wallet_address` is your wallet address for deposits.
+> `your_deposit_wallet_address` is your wallet address for deposits.
 
 
 -   `DepositTransactionAccepted`
     :   indicates transaction information when depositing crypto funds to the
         account
 
+> DepositTransactionAccepted
 
-    ```json
+   ```json
     {
         "@type": "DepositTransactionAccepted",
         "currency": "BTC",
@@ -602,7 +624,7 @@ After a place order message is received by Cryptology the following messages wil
         ]
     }
     
-    ```
+   ```
     
     
 
@@ -610,9 +632,9 @@ After a place order message is received by Cryptology the following messages wil
     :   indicates transaction information when withdrawing crypto funds from
         the account
 
+> WithdrawalTransactionAccepted 
     
-    
-    ```json
+   ```json
     {
         "@type": "WithdrawalTransactionAccepted",
         "currency": "BTC",
@@ -630,33 +652,36 @@ After a place order message is received by Cryptology the following messages wil
         ]
     }
     
-    ```
+   ```
     
     
 
 -   `DepositAddressGeneratingError`
     :    indicates that generating deposit address finished with error
     
+  
+> DepositAddressGeneratingError  
     
-    ```json
+   ```json
     {
         "@type": "DepositAddressGeneratingError",
         "message": "Multiple addresses is not allowed"
     }
-    ```
+   ```
     
     
 
 -   `WithdrawalError`
     :    indicates that withdrawal not performed because error caused
     
+> WithdrawalError    
     
-    ```json
+   ```json
     {
         "@type": "WithdrawalError",
         "message": "Minimum withdrawal value is not reached"
     }
-    ```
+   ```
     
   
     
@@ -668,8 +693,10 @@ After a place order message is received by Cryptology the following messages wil
          `maker` equals `true` if the account was a maker. `maker_buy`
          equals `true` if the maker side was buying.
 
-    
-    ```json
+  
+> OwnTrade
+  
+   ```json
     {
         "@type": "OwnTrade",
         "time": [
@@ -685,7 +712,7 @@ After a place order message is received by Cryptology the following messages wil
         "client_order_id": 123
     }
     
-    ```
+   ```
     
     
 
@@ -693,8 +720,9 @@ After a place order message is received by Cryptology the following messages wil
      :   sent when the account perform self trading.
          `maker_buy` equals `true` if the opposite order was a buy order.
 
+> SelfTrade
 
-     ```json
+   ```json
      {
          "@type": "SelfTrade",
          "time": [
@@ -713,7 +741,7 @@ After a place order message is received by Cryptology the following messages wil
          "client_order_id": 123
      }
      
-     ```
+   ```
      
      
 
@@ -742,6 +770,8 @@ After a place order message is received by Cryptology the following messages wil
 all limit order placement messages share the same structure
 
 
+> Example of order placement message:
+
 ```json
 {
     "@type": "PlaceBuyLimitOrder",
@@ -766,9 +796,9 @@ all limit order placement messages share the same structure
 
 all stop-limit order placement messages share the same structure
 
+> Example of stop-limit placement message:
 
-
-```json5
+ ```json5
 {
     "@type": "PriceLowerCondition",
     // stop price
@@ -780,16 +810,16 @@ all stop-limit order placement messages share the same structure
          "amount": "1",
          "client_order_id": 243,
          "ttl": 0
-     }
+              }
 }
 
 
-```
+ ```
 
 
 
 
-`client_order_id` is a tag to relate server messages to client ones.
+> `client_order_id` is a tag to relate server messages to client ones.
 `ttl` is the time the order is valid for. Measured in seconds (with 1
 minute granularity). 0 means valid forever.
 
@@ -799,26 +829,33 @@ minute granularity). 0 means valid forever.
     :   cancel any order
 
     
-    ```json
+    
+> CancelOrder
+
+
+   ```json
     {
         "@type": "CancelOrder",
         "order_id": 42
     }
     
-    ```
+   ```
     
     
 
 -   `CancelAllOrders`
     :   cancel all active orders opened by the client
 
+  
+  
+> CancelAllOrders
     
-    ```json
+   ```json
     {
         "@type": "CancelAllOrders"
     }
     
-    ```
+   ```
     
 
 
@@ -829,6 +866,7 @@ with new params.
 For this purpose, you can use `MoveOrder` message.
 
 
+> MoveOrder
 
 ```json
 {
@@ -848,8 +886,10 @@ For this purpose, you can use `MoveOrder` message.
 -   For initializing crypto withdrawal to saved wallet address you can
     use `WithdrawCrypto` message.
 
+
+> WithdrawCrypto
     
-    ```json
+   ```json
     {
         "@type": "WithdrawCrypto",
         "currency": "BTC",
@@ -857,10 +897,10 @@ For this purpose, you can use `MoveOrder` message.
         "to_wallet": "your_wallet_address"
     }
     
-    ```
+   ```
 
 
-    where `your_wallet_address` is your saved wallet address.
+> where `your_wallet_address` is your saved wallet address.
     After sending this message, you can receive
     `WithdrawalInitializedSuccess` or `WithdrawalError` message.
     See Server Messages / [Wallet](#wallet) Section for details.
@@ -868,9 +908,10 @@ For this purpose, you can use `MoveOrder` message.
 -   For generating crypto address for deposit to your account you can 
     use `GenerateDepositAddress` message.
     
-    
+   
+> GenerateDepositAddress 
      
-     ```json
+   ```json
     {
         "@type": "GenerateDepositAddress",
         "currency": "LTC",
@@ -878,11 +919,11 @@ For this purpose, you can use `MoveOrder` message.
     }
     
     
-    ```
+   ```
     
     
     
-    where `create_new` flag means that if you already have generated an address,
+> where `create_new` flag means that if you already have generated an address,
     it will be returned. Otherwise, a new address will be generated if it is
     permitted for your account. After sending this message, you can receive
     `DepositAddressGenerated` or `DepositAddressGeneratingError` message.
