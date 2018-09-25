@@ -1,6 +1,6 @@
-# Welcome to Cryptology community exchange documentation!
+# WELCOME TO CRYPTOLOGY COMMUNITY EXCHANGE DOCUMENTATION!
 
-# Introduction
+# INTRODUCTION
 
 Welcome to Cryptology trader and developer documentation. These documents outline exchange functionality, market details, and APIs.
 
@@ -11,7 +11,7 @@ By accessing the Cryptology Data API, you agree to the [Terms & Conditions](http
 To access the Trading API server, add an access/secret key pair on [Account](https://cryptology.com/app/account) / [API](https://cryptology.com/app/account/api) section of Cryptology website.
 You can generate one or more key pairs.
 
-# General information
+# GENERAL INFORMATION
 
 ## Matching orders
 
@@ -116,13 +116,13 @@ wss://marketdata.cryptology.com
 
 [https://cryptology.com] (https://cryptology.com)
 
-# Websocket API
+# WEBSOCKET API
 
 
 ## Installation
 
 
-``` {.sourceCode .bash}
+```bash
 pip install git+https://github.com/CryptologyExchange/cryptology-ws-client-python.git
 
 ```
@@ -135,7 +135,7 @@ Example of connection through our official Python client library for the Cryptol
 about our official Python client library and 
 [Writing Your Own Trading Bot from Scratch](https://github.com/CryptologyExchange/api/blob/master/trading_bot.md) tutorial*
 
-``` {.sourceCode .python3}
+```python
 import asyncio
 import itertools
 import os
@@ -190,7 +190,7 @@ if __name__ == '__main__':
     loop.run_until_complete(main())
 ```
 
-# WS Trading protocol
+# Trading protocol
 
 Cryptology API operates over the WebSocket protocol with PING heartbeat being sent every 4 seconds (for details about WebSocket protocol, read [RFC 6455](https://tools.ietf.org/html/rfc6455)).
 
@@ -258,7 +258,7 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 | `message_id` | is a message id at which a `state` is created |
 
 
-## Messages
+## Responses
 
 > Request example
 
@@ -349,60 +349,10 @@ Some errors can cause server connection closing
 |Your IP Address Has No Permission for This Access Key  | Generate another access/secret key pair and set up IPs to access|
 |Two Simultaneous Connections| You can connect to API with one access key per one connection only|
 
-# WS Market data protocol
-
-Market data is broadcasted via web socket. It is read only
-and has no integrity checks aside of Web Socket built-in mechanisms.
-
-## Messages
-
--   `OrderBookAgg`
-    :   aggregated order book for a given symbol, recalculated after each
-    order book change (most likely will be throttled to reasonable interval in future). May have empty dictionaries `buy_levels` or `sell_levels` in case of an empty order book. Both dictionaries use the price as a key and volume as a value. `current_order_id`
-    denotes the order that leads to the state of the order book.
-
-> OrderBookAgg:
-
-   ```json
-    {
-        "@type": "OrderBookAgg",
-        "buy_levels": {
-            "1": "1"
-        },
-        "sell_levels": {
-            "0.1": "1"
-        },
-        "trade_pair": "BTC_USD",
-        "current_order_id": 123456
-    }
-    
-   ```
-
-
--   `AnonymousTrade`
-    :   a trade has taken place. `time` has two parts - integer seconds
-        and integer milliseconds UTC. `maker_buy` is true if maker is a buyer. If maker is a seller it is false. If maker is a buyer than taker is a seller and conversely.
-
-
-> AnonymousTrade:
-   
-   ```json
-    {
-        "@type": "AnonymousTrade",
-        "time": [1530093825, 0],
-        "trade_pair": "BTC_USD",
-        "current_order_id": 123456,
-        "amount": "42.42",
-        "price": "555",
-        "maker_buy": false
-    }
-    
-   ```
-    
 
 ## Server messages
 
-### Order lifecycle
+## Order lifecycle
 
 After a place order message is received by Cryptology the following messages will be sent over web socket connection. All order-related messages are user specific (i.e. you can't receive any of these messages for regular or other user orders). The `time` parameter is a list of two integers. The first one is a UNIX timestamp in the UTC time zone. The second is a number of microseconds.
 
@@ -515,7 +465,7 @@ After a place order message is received by Cryptology the following messages wil
 
 
 
-### Wallet
+## Wallet
 
 -   `SetBalance`
     :   sets a new client balance for a given currency. `reason` can be
@@ -686,7 +636,7 @@ After a place order message is received by Cryptology the following messages wil
   
     
 
-### General
+## General
 
 -   `OwnTrade`
      :   sent when the account participated in a deal on either side.
@@ -747,7 +697,7 @@ After a place order message is received by Cryptology the following messages wil
 
 ## Client messages
 
-### Limit Order Placement
+## Limit Order Placement
 
 - `PlaceBuyLimitOrder`
     :   limit bid
@@ -786,7 +736,7 @@ all limit order placement messages share the same structure
 
 
 
-### Stop-Limit Order Placement
+## Stop-Limit Order Placement
 
 - `PriceLowerCondition`
     : stop-limit order to sell
@@ -798,32 +748,28 @@ all stop-limit order placement messages share the same structure
 
 > Example of stop-limit placement message:
 
- ```json5
+
+```json
 {
     "@type": "PriceLowerCondition",
-    // stop price
-     "price": "5000",
-     "order": {
+    "price": "5000",
+    "order": {
          "trade_pair": "BTC_USD",
-         // limit price
          "price": "4900",
          "amount": "1",
          "client_order_id": 243,
          "ttl": 0
-              }
+     }
 }
-
-
- ```
-
-
-
+```
 
 > `client_order_id` is a tag to relate server messages to client ones.
 `ttl` is the time the order is valid for. Measured in seconds (with 1
-minute granularity). 0 means valid forever.
+minute granularity). 0 means valid forever. External `price` is a stop price.
+Internal `order` `price` is a price of an order which will be created after the stop `price`is reached.
 
-### Order cancelation
+
+## Order cancelation
 
 -   `CancelOrder`
     :   cancel any order
@@ -859,7 +805,7 @@ minute granularity). 0 means valid forever.
     
 
 
-### Order moving
+## Order moving
 
 You can change order `price` or `ttl` without manually cancelling and creating it
 with new params.
@@ -881,7 +827,7 @@ For this purpose, you can use `MoveOrder` message.
 
 
 
-### Wallet
+## Wallet
 
 -   For initializing crypto withdrawal to saved wallet address you can
     use `WithdrawCrypto` message.
@@ -929,4 +875,57 @@ For this purpose, you can use `MoveOrder` message.
     `DepositAddressGenerated` or `DepositAddressGeneratingError` message.
     See Server Messages / [Wallet](#wallet) Section for details.
 
+
+
+
+# Market data protocol
+
+Market data is broadcasted via web socket. It is read only
+and has no integrity checks aside of Web Socket built-in mechanisms.
+
+## Messages
+
+-   `OrderBookAgg`
+    :   aggregated order book for a given symbol, recalculated after each
+    order book change (most likely will be throttled to reasonable interval in future). May have empty dictionaries `buy_levels` or `sell_levels` in case of an empty order book. Both dictionaries use the price as a key and volume as a value. `current_order_id`
+    denotes the order that leads to the state of the order book.
+
+> OrderBookAgg:
+
+   ```json
+    {
+        "@type": "OrderBookAgg",
+        "buy_levels": {
+            "1": "1"
+        },
+        "sell_levels": {
+            "0.1": "1"
+        },
+        "trade_pair": "BTC_USD",
+        "current_order_id": 123456
+    }
+    
+   ```
+
+
+-   `AnonymousTrade`
+    :   a trade has taken place. `time` has two parts - integer seconds
+        and integer milliseconds UTC. `maker_buy` is true if maker is a buyer. If maker is a seller it is false. If maker is a buyer than taker is a seller and conversely.
+
+
+> AnonymousTrade:
+   
+   ```json
+    {
+        "@type": "AnonymousTrade",
+        "time": [1530093825, 0],
+        "trade_pair": "BTC_USD",
+        "current_order_id": 123456,
+        "amount": "42.42",
+        "price": "555",
+        "maker_buy": false
+    }
+    
+   ```
+    
 
