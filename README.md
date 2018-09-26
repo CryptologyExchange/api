@@ -32,6 +32,13 @@ this limit you will receive a message with `THROTTLING` response type and
 `overflow_level` param which must be used for waiting `overflow_level`
 milliseconds.
 
+## Unfair price prevention
+
+We prevent order placement with a price different from the market price by more than 10%.
+For example, if current best ask is 1000, you can't make Buy order with a price
+greater than 1100. And if the current best bid is 1000, you can't make Sell order
+with a price lower than 900.
+
 
 ## Order Lifecycle
 
