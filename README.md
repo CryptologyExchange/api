@@ -392,6 +392,25 @@ After a place order message is received by Cryptology the following messages wil
     }
    ```
 
+-   `PlacingOrderCancelled`
+    :   placing order was canceled (no trading volume, price out of market)
+
+> PlacingOrderCancelled
+
+
+   ```json
+    {
+        "@type": "PlacingOrderCancelled",
+        "order_id": 1,
+        "time": [
+            946684800,
+            0
+        ],
+        "trade_pair": "BTC_USD",
+        "reason": "price_out_of_market",
+        "client_order_id": 123
+    }
+   ```
 
 -   `BuyOrderAmountChanged`, `SellOrderAmountChanged`
     :   order was partially executed, sets a new amount
