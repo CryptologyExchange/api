@@ -13,7 +13,7 @@ You can generate one or more key pairs.
 
 # GENERAL INFORMATION
 
-## Matching orders
+## Matching Orders
 
 Cryptology market operates a first come-first serve order matching. Orders are executed as received by the matching engine, from the older to newer received orders.
 
@@ -25,19 +25,24 @@ from the same client cross. Yet Cryptology charges taker fee for the smaller ord
  If the two orders are the same size, both will be canceled, yet 
  Cryptology will charge taker fee for one order.
 
-## Rate limit
+## Rate Limit
 
-Currently Cryptology has a rate limit of 10 requests per second. If you reach
-this limit you will receive a message with `THROTTLING` response type and
-`overflow_level` param which must be used for waiting `overflow_level`
+Currently Cryptology has a rate limit of 10 requests per second for WebSocket
+API and 1 request per second for HTTPS API. If you reach this limit you will receive
+a message with `THROTTLING` response type and
+`overflow_level` param which must be used for waiting for `overflow_level`
 milliseconds.
 
-## Unfair price prevention
+## Unfair Price Prevention
 
 We prevent order placement with a price different from the market price by more than 10%.
 For example, if current best ask is 1000, you can't make Buy order with a price
 greater than 1100. And if the current best bid is 1000, you can't make Sell order
 with a price lower than 900.
+
+## Decimal Precision
+
+Each amounts and a prices on Cryptology have 8 decimal places.
 
 
 ## Order Lifecycle
@@ -99,10 +104,13 @@ To add funds, use the web interface deposit and withdraw buttons as you would on
 When testing your API connectivity, make sure to use the following URLs.
 
 Trading API:
-wss://api.sandbox.cryptology.com
+wss://api-sandbox.cryptology.com
 
 Market Data API:
-wss://marketdata.sandbox.cryptology.com
+wss://marketdata-sandbox.cryptology.com
+
+HTTPS API:
+https://api.sandbox.cryptology.com
 
 **Website:**
 
@@ -119,6 +127,9 @@ wss://api.cryptology.com
 Market Data API:
 wss://marketdata.cryptology.com
 
+HTTPS API:
+https://api.cryptology.com
+
 **Website:**
 
 [https://cryptology.com] (https://cryptology.com)
@@ -130,7 +141,7 @@ wss://marketdata.cryptology.com
 
 
 ```bash
-pip install git+https://github.com/CryptologyExchange/cryptology-ws-client-python.git
+pip install cryptology-ws-client-python
 
 ```
 
@@ -199,13 +210,29 @@ if __name__ == '__main__':
 
 # Trading protocol
 
-Cryptology API operates over the WebSocket protocol with PING heartbeat being sent every 4 seconds (for details about WebSocket protocol, read [RFC 6455](https://tools.ietf.org/html/rfc6455)).
+Cryptology API operates over the WebSocket protocol with PING
+heartbeat being sent every 4 seconds (for details about WebSocket protocol,
+read [RFC 6455](https://tools.ietf.org/html/rfc6455)).
 
 
 
-## Handshake
+## Authentication
 
-### Client sends a message with the following format:
+After connecting to WebSocket Trading Server, send a message for authentication on the server.
+With client-side authentication message, send `last_seen_message_id`.
+After successful authentication, the server sends an authentication message
+to WebSocket connection and all messages addressed to you with `message_id`
+started from `last_seen_message_id`, but not older than 1 day.
+
+With server-side authentication message, you receive `last_seen_sequence`.
+Start sending messages to the server with `sequence_id` more than
+`last_seen_sequence` in series. For example, if you receive `last_seen_sequence`
+equal to 654,`sequence_id` of next client message which will be sent to the server
+is 655. Otherwise, the connection will be closed with "Invalid Sequence" error.
+`sequence_id` in all subsequent client messages must be serial.
+For example 656, 657, 658 etc.
+
+### Client sends a message in the following format:
 
 > Example of client message:
 
@@ -221,7 +248,6 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 
 ```
 
-
 | Name       | Description          |
 | :-------------: |:-------------|
 | `access_key`  | is a client access key |
@@ -232,9 +258,9 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 | `get_order_books`|optional flags which ask the server to send user order books (default: false)|
 
 
-### Server responds with the following format:
+### Server responds in the following format:
 
-> Example of server respond:
+> Example of server response:
 
 ```json
 {
@@ -243,18 +269,18 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
     "state": {
         "message_id": 5367625,
         "balances": {"BTC": {"available": "1",
-                             "holded": "0"
+                             "on_hold": "0"
                             },
                      "USD": {"available": "1000",
-                             "holded": "120.25"
+                             "on_hold": "120.25"
                             }
                     }
              },
     "greeting": "Welcome to Cryptology API Server",
     "trade_pairs": ["BTC_USD", "LTC_BTC", "ETH_USD"]
   }
+ 
 ```
-
 | Name       | Description          |
 | :-------------: |:-------------|
 | `last_seen_sequence`  | is a last `sequense_id` which server received from client|
@@ -265,7 +291,7 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
 | `message_id` | is a message id at which a `state` is created |
 
 
-## Responses
+## Requests
 
 > Request example
 
@@ -279,8 +305,9 @@ Cryptology API operates over the WebSocket protocol with PING heartbeat being se
  }
 ```
 
-There are the following types of server response messages: **MESSAGE**, **THROTTLING**,
-**ERROR**.
+## Responses
+
+There are the following types of server response messages: **MESSAGE**, **THROTTLING**.
 
 > **MESSAGE** response example:
 
@@ -313,15 +340,6 @@ There are the following types of server response messages: **MESSAGE**, **THROTT
 }
 ```
 
-> **ERROR** response example:
-
-```json
-{
-    "response_type": "ERROR",
-    "error_type": "DUPLICATE_CLIENT_ORDER_ID",
-    "error_message": "Client order id 345 already exists"
-}
-```
 
 **Params:**
 
@@ -334,34 +352,27 @@ There are the following types of server response messages: **MESSAGE**, **THROTT
 | `data`              | json | Body of message                                                                    | Yes |  |
 | `overflow_level`   | int  | Amount of orders the client should postpone sending to keep up with the rate limit | Yes |  |
 | `client_order_id` | int  | Order id which is sent by client                                                      | No  |  |
-| `error_type`       | enum | Error type `ERROR_TYPE`                                                            | Yes |  |
-| `error_message`    | str  | Error description                                                                  | Yes |  |
 
-`ERROR_TYPE` determines an error type:
-
-| `ERROR_TYPE`    | Description          |
-| :-------------: |:-------------|
-| `DUPLICATE_CLIENT_ORDER_ID error`  | `client_order_id` must be a unique field for each order created. `DUPLICATE_CLIENT_ORDER_ID` means that `client_order_id` in the sent message is not unique.|
- `INVALID_PAYLOAD error`  | All client messages must be in a valid JSON format and contain all the required fields. `INVALID_PAYLOAD` means that client sends an invalid JSON or any required parameter is not sent.|
-| `UNKNOWN_ERROR error`  | Any other errors. |
-
-
-### Critical errors
-Some errors can cause server connection closing
+### Errors
+All protocol errors are cause server connection closing
 
 |Error text | Description |
 | :----------:|:-------------|
-|Authentication Failed|  Invalid or removed access/secret key pair. Send correct access/secret key pair|
+|Authentication Failed| Invalid or removed access/secret key pair. Send correct access/secret key pair|
 |Trade for This Access Key Not Permitted | Generate another access/secret key pair with trade permission|
 |Your IP Address Has No Permission for This Access Key  | Generate another access/secret key pair and set up IPs to access|
 |Two Simultaneous Connections| You can connect to API with one access key per one connection only|
+|Invalid Sequence| You are sends inconsistent `sequence_id`|
 
+## Server Messages
 
-## Server messages
+## Order Lifecycle
 
-## Order lifecycle
-
-After a place order message is received by Cryptology the following messages will be sent over web socket connection. All order-related messages are user specific (i.e. you can't receive any of these messages for regular or other user orders). The `time` parameter is a list of two integers. The first one is a UNIX timestamp in the UTC time zone. The second is a number of microseconds.
+After a place order message is received by Cryptology the following messages will
+be sent over web socket connection. All order-related messages are user specific
+(i.e. you can't receive any of these messages for regular or other user orders).
+The `time` parameter is a list of two integers. The first one is a UNIX timestamp in
+the UTC time zone. The second is a number of microseconds.
 
 -   `BuyOrderPlaced`, `SellOrderPlaced`
     :   order was received by cryptology. `closed_inline` indicates an
@@ -373,7 +384,7 @@ After a place order message is received by Cryptology the following messages wil
 
 
 > BuyOrderPlaced / SellOrderPlaced
- 
+
 
    ```json
     {
@@ -416,10 +427,10 @@ After a place order message is received by Cryptology the following messages wil
 -   `BuyOrderCancelled`, `SellOrderCancelled`
     :   order was canceled (manual, TTL, IOC, FOK, tbd), end of order
         lifecycle
-  
+
 > BuyOrderCancelled / SellOrderCancelled    
-    
-    
+
+
    ```json
     {
         "@type": "BuyOrderCancelled",
@@ -438,7 +449,7 @@ After a place order message is received by Cryptology the following messages wil
     :   order was fully executed, end of order lifecycle
 
 > BuyOrderClosed / SellOrderClosed   
-   
+
    ```json
     {
         "@type": "BuyOrderClosed",
@@ -452,16 +463,15 @@ After a place order message is received by Cryptology the following messages wil
     }
     
    ```
-    
+
     
 
--   `OrderNotFound`
+- `OrderNotFound`
     :   attempt to cancel a non-existing order was made
 
-    
 > OrderNotFound 
-    
-    
+
+
    ```json
     {
         "@type": "OrderNotFound",
@@ -469,7 +479,6 @@ After a place order message is received by Cryptology the following messages wil
     }
     
    ```
-
 
 
 ## Wallet
@@ -481,7 +490,7 @@ After a place order message is received by Cryptology the following messages wil
         as a result of a withdrawal.
 
 > SetBalance
-    
+
    ```json
             {
                 "@type": "SetBalance",
@@ -496,8 +505,8 @@ After a place order message is received by Cryptology the following messages wil
             }
     
    ```
-     
-    
+
+
 > `change` is amount by which the balance has changed. Positive if it increased and negative if decreased.
 
 -   `InsufficientFunds`
@@ -505,7 +514,7 @@ After a place order message is received by Cryptology the following messages wil
         order
     
 > InsufficientFunds  
-    
+
    ```json
     {
         "@type": "InsufficientFunds",
@@ -514,7 +523,6 @@ After a place order message is received by Cryptology the following messages wil
     }
     
    ```
-    
     
 
 -   `WithdrawalInitializedSuccess`
@@ -533,7 +541,7 @@ After a place order message is received by Cryptology the following messages wil
     }
     
    ```
-    
+
     
 
 > `your_wallett_address`  is your wallet address where payment will
@@ -543,7 +551,7 @@ After a place order message is received by Cryptology the following messages wil
     : returns generated address for crypto deposits.
 
 > DepositAddressGenerated    
-    
+
    ```json
     {
         "@type": "DepositAddressGenerated",
@@ -552,8 +560,8 @@ After a place order message is received by Cryptology the following messages wil
     }
     
    ```
-    
-    
+
+
 > `your_deposit_wallet_address` is your wallet address for deposits.
 
 
@@ -582,7 +590,7 @@ After a place order message is received by Cryptology the following messages wil
     }
     
    ```
-    
+
     
 
 -   `WithdrawalTransactionAccepted`
@@ -590,7 +598,7 @@ After a place order message is received by Cryptology the following messages wil
         the account
 
 > WithdrawalTransactionAccepted 
-    
+
    ```json
     {
         "@type": "WithdrawalTransactionAccepted",
@@ -610,37 +618,37 @@ After a place order message is received by Cryptology the following messages wil
     }
     
    ```
-    
+
     
 
 -   `DepositAddressGeneratingError`
     :    indicates that generating deposit address finished with error
     
-  
+
 > DepositAddressGeneratingError  
-    
+
    ```json
     {
         "@type": "DepositAddressGeneratingError",
         "message": "Multiple addresses is not allowed"
     }
    ```
-    
+
     
 
 -   `WithdrawalError`
     :    indicates that withdrawal not performed because error caused
     
 > WithdrawalError    
-    
+
    ```json
     {
         "@type": "WithdrawalError",
         "message": "Minimum withdrawal value is not reached"
     }
    ```
-    
-  
+
+
     
 
 ## General
@@ -650,9 +658,9 @@ After a place order message is received by Cryptology the following messages wil
          `maker` equals `true` if the account was a maker. `maker_buy`
          equals `true` if the maker side was buying.
 
-  
+
 > OwnTrade
-  
+
    ```json
     {
         "@type": "OwnTrade",
@@ -670,7 +678,7 @@ After a place order message is received by Cryptology the following messages wil
     }
     
    ```
-    
+
     
 
 -    `SelfTrade`
@@ -699,10 +707,10 @@ After a place order message is received by Cryptology the following messages wil
      }
      
    ```
-     
+
      
 
-## Client messages
+## Client Messages
 
 ## Limit Order Placement
 
@@ -741,6 +749,10 @@ all limit order placement messages share the same structure
 
 ```
 
+> `client_order_id` is an optional tag to relate server messages to client ones.
+`ttl` is the time the order is valid for. 0 means valid forever. 
+`ttl` is available only for limit bid, limit ask orders and for
+conditional orders messages.
 
 
 ## Stop-Limit Order Placement
@@ -770,19 +782,15 @@ all stop-limit order placement messages share the same structure
 }
 ```
 
-> `client_order_id` is a tag to relate server messages to client ones.
-`ttl` is the time the order is valid for. Measured in seconds (with 1
-minute granularity). 0 means valid forever. External `price` is a stop price.
+>  External `price` is a stop price.
 Internal `order` `price` is a price of an order which will be created after the stop `price`is reached.
 
 
-## Order cancelation
+## Order Cancelation
 
--   `CancelOrder`
+- `CancelOrder`
     :   cancel any order
 
-    
-    
 > CancelOrder
 
 
@@ -793,26 +801,26 @@ Internal `order` `price` is a price of an order which will be created after the 
     }
     
    ```
-    
+
     
 
 -   `CancelAllOrders`
     :   cancel all active orders opened by the client
 
   
-  
+
 > CancelAllOrders
-    
+
    ```json
     {
         "@type": "CancelAllOrders"
     }
     
    ```
-    
 
 
-## Order moving
+
+## Order Moving
 
 You can change order `price` or `ttl` without manually cancelling and creating it
 with new params.
@@ -841,7 +849,7 @@ For this purpose, you can use `MoveOrder` message.
 
 
 > WithdrawCrypto
-    
+
    ```json
     {
         "@type": "WithdrawCrypto",
@@ -861,9 +869,9 @@ For this purpose, you can use `MoveOrder` message.
 -   For generating crypto address for deposit to your account you can 
     use `GenerateDepositAddress` message.
     
-   
+
 > GenerateDepositAddress 
-     
+
    ```json
     {
         "@type": "GenerateDepositAddress",
@@ -873,8 +881,8 @@ For this purpose, you can use `MoveOrder` message.
     
     
    ```
-    
-    
+
+
     
 > where `create_new` flag means that if you already have generated an address,
     it will be returned. Otherwise, a new address will be generated if it is
@@ -885,7 +893,7 @@ For this purpose, you can use `MoveOrder` message.
 
 
 
-# Market data protocol
+# Market Data Protocol
 
 Market data is broadcasted via web socket. It is read only
 and has no integrity checks aside of Web Socket built-in mechanisms.
@@ -894,7 +902,9 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
 
 -   `OrderBookAgg`
     :   aggregated order book for a given symbol, recalculated after each
-    order book change (most likely will be throttled to reasonable interval in future). May have empty dictionaries `buy_levels` or `sell_levels` in case of an empty order book. Both dictionaries use the price as a key and volume as a value. `current_order_id`
+    order book change (most likely will be throttled to reasonable interval in future).
+    May have empty dictionaries `buy_levels` or `sell_levels` in case of an empty order book.
+    Both dictionaries use the price as a key and volume as a value. `current_order_id`
     denotes the order that leads to the state of the order book.
 
 > OrderBookAgg:
@@ -917,11 +927,12 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
 
 -   `AnonymousTrade`
     :   a trade has taken place. `time` has two parts - integer seconds
-        and integer milliseconds UTC. `maker_buy` is true if maker is a buyer. If maker is a seller it is false. If maker is a buyer than taker is a seller and conversely.
+        and integer milliseconds UTC. `maker_buy` is true if maker is a buyer.
+        If maker is a seller it is false. If maker is a buyer than taker is a seller and conversely.
 
 
 > AnonymousTrade:
-   
+
    ```json
     {
         "@type": "AnonymousTrade",
@@ -934,5 +945,584 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
     }
     
    ```
-    
 
+
+# HTTPS API
+
+Cryptology HTTPS API allows requests with JSON request body for POST endpoints and
+empty request body for GET endpoints.
+
+# Request Format
+
+All POST requests must contain valid JSON body.
+All required params must be sent on JSON fields via POST or on URL params via GET.
+
+**POST request body example:**
+
+```json
+{
+    "trade_pair": "BTC_USD"
+}
+```
+
+**GET request example:**
+
+```
+GET https://api.cryptology.com/v1/public/get-trades?trade-pair=BTC_USD
+```
+
+## Response Format
+
+Every endpoint returns a 200 HTTPS response code and JSON response body.
+
+**Successful response**
+
+Successful response has "OK" status and "data" JSON field.
+
+```json
+{
+    "status": "OK",
+    "data": {},
+    "error": null
+}
+```
+
+Where "data" contains the result of request.
+
+**Error response**
+
+If request finishes with an error, response contains an "ERROR" status and "error" JSON field.
+
+```json
+{
+    "status": "ERROR",
+    "error": {"code": "INSUFFICIENT_FUND",
+              "message": null},
+    "data": null
+}
+```
+
+Where "error" contains "code" of the error and optionally contains an error "message".
+
+## Error Codes
+
+| Param name      | Description          
+| :-------------: |:-------------|
+| INSUFFICIENT_FUND  | You don't have enough money for operation
+| INVALID_REQUEST    | Invalid request arguments
+| INVALID_KEY        | You need to send correct Access-Key and Secret-Key headers
+| INVALID_TIMESTAMP  | Your timestamp must be within 30 seconds from the api server time. We can use the /public/time endpoint to query for the API server time. 
+| PERMISSION_DENIED  | Your API key does not have permissions for this request.
+| TOO\_MANY\_REQUESTS  | You have reached the rate limit.
+| DUPLICATE\_CLIENT\_ORDER\_ID  | You can't create two orders with the same `client_order_id`
+| UNKNOWN_ERROR      | Any other error
+
+## Types
+
+**Order nature:**
+
+- BUY
+- SELL
+
+**Order status:**
+
+- PENDING
+- NEW
+- FILLED
+- CANCELLED
+
+**Time in force:**
+
+- GTC
+- GTD
+- FOK
+- IOC
+
+**Payment status:**
+
+- INITIALIZED
+- PENDING
+- COMPLETE
+- DECLINED
+
+**Order book type:**
+
+- AGGREGATED
+- BEST (currently unsupported)
+- FULL (currently unsupported)
+
+
+**Candles interval types**
+
+- M1
+- M20
+- H1
+- H6
+- D1
+
+
+# Private
+
+Private endpoints are only available for authorized users.
+To make a request for authorisation you need send your access key in Access-Key header and your secret key in Secret-Key header. Each private request must contain Nonce header.
+Nonce is a unique five-minute-interval number.
+
+**Request headers example:**
+
+```
+POST /v1/private/get-balances HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Content-Type: application/json
+Content-Length: 235
+Access-Key: KJuyg3bdi3ubycvebijckniugvbuibivujb=
+Secret-Key: ih74gfyuevcbernivyeucwevbli3h3y4gr74yrgvb37guvbfb483vfy38iv==
+Nonce: 23
+```
+
+## Orders Management
+
+### Create order
+
+```
+POST /v1/private/create-order
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_pair  | Yes | A valid trading pair name
+| type | Yes | Only LIMIT orders are currently supported
+| side  | Yes | BUY/SELL
+| time\_in\_force | No | IOC, FOK, GTC or GTD. GTC default
+| ttl | No | Only for GTD orders
+| amount | Yes | Decimal amount value
+| client\_order\_id | No | A unique id of order
+| price | Yes | Decimal price value
+| stop_price | No | Must be defined for stop-limit orders. Supported only for GTC orders
+
+**Response example:**
+
+```json
+{
+    "order_id": 265167535
+}
+```
+
+### Query for order
+
+```
+GET /v1/private/get-order
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| order_id  | Yes | A valid order_id returned by create-order
+
+**Response data example:**
+
+```json
+{
+    "trade_pair": "BTC_USD",
+    "side" : "BUY",
+    "status": "NEW",
+    "order_id": 265167535,
+    "client_order_id": 543,
+    "price": "123.45",
+    "amount": "0.21",
+    "executed_amount": "0.1",
+    "stop_price": "120",
+    "created_at": 1536669674
+}
+```
+
+
+### Cancel order
+
+```
+POST /v1/private/cancel-order
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| order_id  | Yes | A valid order_id returned by create-order
+
+**Response data example:**
+
+```json
+{
+    "cancelled_order": 265167535
+}
+```
+
+
+### Get all client orders
+
+**PARAMETRS:**
+
+```
+GET /v1/private/get-orders
+```
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_pair  | No | Valid trading pair name
+| status  | No | Valid order status
+| limit  | No | Max 500. Default 100
+| start\_created\_at  | No | Unix timestamp in UTC timezone
+
+**Response data example:**
+
+```json
+[
+    {
+        "trade_pair": "BTC_USD",
+        "side" : "SELL",
+        "status": "NEW",
+        "order_id": 265167539,
+        "client_order_id": 544,
+        "price": "128.45",
+        "amount": "0.5",
+        "executed_amount": "0",
+        "created_at": 1536669674,
+        "time_in_force": "GTC"
+    },
+    {
+        "trade_pair": "BTC_USD",
+        "side" : "BUY",
+        "status": "FILLED",
+        "order_id": 265167540,
+        "price": "128.45",
+        "amount": "0.5",
+        "executed_amount": "0.5",
+        "created_at": 1536669695,
+        "done_at": 1536669698,
+        "time_in_force": "GTC"
+    }
+]
+```
+
+### Cancel all orders
+
+```
+POST /v1/private/cancel-all-orders
+```
+
+**Response data example:**
+```json
+[
+    265167535,
+    265167534,
+    265167015
+]
+```
+
+## Trades
+
+## List user trades
+
+```
+GET /v1/private/get-trades
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_pair  | No | Valid trading pair name
+| limit  | No | Max 500. Default 100
+| start  | No | Unix timestamp in UTC timezone
+
+**Response data example:**
+
+```json
+[
+    {
+        "trade_pair": "BTC_USD",
+        "side" : "SELL",
+        "order_id": 265167539,
+        "trade_id": 746837892,
+        "price": "128.45",
+        "amount": "0.5",
+        "time": 1536669696
+    },
+    {
+        "trade_pair": "BTC_USD",
+        "side" : "BUY",
+        "order_id": 265167540,
+        "trade_id": 746837467,
+        "price": "128.45",
+        "amount": "0.5",
+        "time": 1536669695
+    }
+]
+```
+
+## Account
+
+### Get account balances
+
+```
+GET /v1/private/get-balances
+```
+
+**Response data example:**
+
+```json
+{
+    "BTC": {"available": "1.2", "on_hold": "0"},
+    "USD": {"available": "342.1", "on_hold": "200"},
+    "LTC": {"available": "23.62", "on_hold": "0"}
+}
+```
+
+## Payments
+
+Payments via HTTPS API are only available for crypto currencies.
+
+### Generate new deposit address
+
+```
+POST /v1/private/create-deposit-address
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| currency  | Yes | Valid currency name
+
+**Response data example:**
+
+```json
+{
+    "wallet": "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
+}
+```
+
+### Get already generated deposit address
+
+```
+GET /v1/private/get-deposit-address
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| currency  | Yes | Valid currency name
+
+**Response data example:**
+
+```json
+{
+    "wallet": "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
+}
+```
+
+### Withdraw
+
+```
+POST /v1/private/create-withdrawal
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| currency  | Yes | Valid currency name
+| amount  | Yes | Decimal amount value
+| wallet  | Yes | Valid wallet address
+
+**Response data example:**
+
+```json
+{
+    "payment_id": "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
+}
+```
+
+### Get information about withdrawal
+
+```
+GET /v1/private/get-withdrawal
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| payment_id  | Yes | Valid payment id
+
+
+**Response data example:**
+
+```json
+{
+    "status": "COMPLETE",
+    "blockchain_tx_ids": [
+            "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
+        ]
+}
+```
+
+# Public
+
+Public endpoints are available without authorization.
+
+## List available trading pairs
+
+Get available trading pairs
+
+```
+GET /v1/public/get-trade-pairs
+```
+
+**Response data example:**
+
+```json
+[
+    {
+      "trade_pair": "BTC_USD",
+      "base_currency": "BTC",
+      "quoted_currency": "USD"
+    },
+    {
+      "trade_pair": "LTC_BTC",
+      "base_currency": "LTC",
+      "quoted_currency": "BTC"
+    }
+]
+```
+
+## Get order book
+
+```
+GET /v1/public/get-order-book
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_pair  | Yes | Valid trading pair name
+| type  | Yes | AGGREGATED, BEST or FULL. Currently only AGGREGATED supported
+
+
+**Response data example:**
+
+```json
+{ "asks": [
+      ["905.95", "0.1"],
+      ["906.00", "0.05"],
+      ["906.2", "0.2"]
+  ],
+  "bids": [
+      ["905.45", "0.5"],
+      ["904.00", "0.9"],
+      ["902.00", "0.3"]
+    ]
+}
+```
+
+## List recent trades
+
+```
+GET /v1/public/get-trades
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_pair  | Yes | Valid trading pair name
+| limit  | No | Max 500. Default 100
+| start  | No | Unix timestamp in UTC timezone
+
+**Response data example:**
+
+```json
+[
+    {
+        "trade_id": 45678878,
+        "price": "128.45",
+        "amount": "0.5",
+        "time": 1536669632
+    },
+    {
+        "trade_id": 45678879,
+        "price": "128.80",
+        "amount": "0.2",
+        "time": 1536669632
+    }
+]
+```
+
+## List candles
+
+```
+GET /v1/public/get-candles
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_pair  | Yes | Valid trading pair name
+| interval  | Yes | Supported candles interval
+| start | Yes | Start UNIX timestamp
+| end | Yes | End UNIX timestamp in UTC timezone
+
+Maximum data points that can be requested is 300 candles.
+
+**Response data example:**
+
+```json
+[
+    {
+      "time": 1536669600,
+      "open": "128.76",
+      "high": "135.2",
+      "low": "128",
+      "close": "127",
+      "avg": "132.76",
+      "base_volume": "12"
+    },
+    {
+      "time": 1536669660,
+      "open": "127",
+      "high": "130",
+      "low": "127",
+      "close": "127",
+      "avg": "128.2",
+      "base_volume": "3"
+    }
+]
+```
+
+## Get 24 hour statistics
+
+```
+GET /v1/public/get-24hrs-stat
+```
+
+**PARAMETRS:**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_pair  | Yes | Valid trading pair name
+
+**Response data example:**
+
+```json
+{
+    "open": "128.76",
+    "high": "135.2",
+    "low": "128",
+    "base_volume": "765.2"
+}
+```
