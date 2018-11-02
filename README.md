@@ -57,31 +57,7 @@ GTC order supports Time In Force instruction. Time in force is a special instruc
 
 ## Fees
 
-### Trading Fees
-
-Cryptology operates a maker-taker model. Orders which provide liquidity are charged different fees from orders taking liquidity. 
-
-**Trading fees:**
-
-Market maker: 0.02%
-
-Market taker: 0.02%
-
-**Deposits:**
-
-Card deposits: 3.5%
-
-Wire transfers: 0%
-
-**Withdrawals:**
-
-BTC: 0.0005;
-
-BCH, LTC: 0.0003;
-
-ETH: 0.009
-
-EUR: €7 per SEPA transfer
+[FAQ] (https://intercom.help/cryptologyexchange/english/frequently-asked-questions-faq)
 
 ## Data Centers
 
