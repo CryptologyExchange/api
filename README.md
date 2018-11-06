@@ -1,5 +1,3 @@
-# WELCOME TO CRYPTOLOGY COMMUNITY EXCHANGE DOCUMENTATION!
-
 # INTRODUCTION
 
 Welcome to Cryptology trader and developer documentation. These documents outline exchange functionality, market details, and APIs.
