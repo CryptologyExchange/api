@@ -1,5 +1,3 @@
-# WELCOME TO CRYPTOLOGY COMMUNITY EXCHANGE DOCUMENTATION!
-
 # INTRODUCTION
 
 Welcome to Cryptology trader and developer documentation. These documents outline exchange functionality, market details, and APIs.
@@ -62,31 +60,7 @@ GTC order supports Time In Force instruction. Time in force is a special instruc
 
 ## Fees
 
-### Trading Fees
-
-Cryptology operates a maker-taker model. Orders which provide liquidity are charged different fees from orders taking liquidity. 
-
-**Trading fees:**
-
-Market maker: 0.02%
-
-Market taker: 0.02%
-
-**Deposits:**
-
-Card deposits: 3.5%
-
-Wire transfers: 0%
-
-**Withdrawals:**
-
-BTC: 0.0005;
-
-BCH, LTC: 0.0003;
-
-ETH: 0.009
-
-EUR: €7 per SEPA transfer
+[FAQ] (https://intercom.help/cryptologyexchange/english/frequently-asked-questions-faq)
 
 ## Data Centers
 
@@ -110,7 +84,8 @@ Market Data API:
 wss://marketdata-sandbox.cryptology.com
 
 HTTPS API:
-https://api.sandbox.cryptology.com
+https://api-sandbox.cryptology.com
+
 
 **Website:**
 
@@ -403,6 +378,25 @@ the UTC time zone. The second is a number of microseconds.
     }
    ```
 
+-   `PlacingOrderCancelled`
+    :   placing order was canceled (no trading volume, price out of market)
+
+> PlacingOrderCancelled
+
+
+   ```json
+    {
+        "@type": "PlacingOrderCancelled",
+        "order_id": 1,
+        "time": [
+            946684800,
+            0
+        ],
+        "trade_pair": "BTC_USD",
+        "reason": "price_out_of_market",
+        "client_order_id": 123
+    }
+   ```
 
 -   `BuyOrderAmountChanged`, `SellOrderAmountChanged`
     :   order was partially executed, sets a new amount
@@ -1128,6 +1122,7 @@ GET /v1/private/get-order
 {
     "trade_pair": "BTC_USD",
     "side" : "BUY",
+    "type": "LIMIT",
     "status": "NEW",
     "order_id": 265167535,
     "client_order_id": 543,
@@ -1182,6 +1177,7 @@ GET /v1/private/get-orders
     {
         "trade_pair": "BTC_USD",
         "side" : "SELL",
+        "type": "LIMIT",
         "status": "NEW",
         "order_id": 265167539,
         "client_order_id": 544,
@@ -1194,6 +1190,7 @@ GET /v1/private/get-orders
     {
         "trade_pair": "BTC_USD",
         "side" : "BUY",
+        "type": "LIMIT",
         "status": "FILLED",
         "order_id": 265167540,
         "price": "128.45",
