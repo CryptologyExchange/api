@@ -73,10 +73,10 @@ To add funds, use the web interface deposit and withdraw buttons as you would on
 When testing your API connectivity, make sure to use the following URLs.
 
 Trading API:
-wss://api.sandbox.cryptology.com
+wss://api-sandbox.cryptology.com
 
 Market Data API:
-wss://marketdata.sandbox.cryptology.com
+wss://marketdata-sandbox.cryptology.com
 
 **Website:**
 
