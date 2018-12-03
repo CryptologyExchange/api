@@ -23,7 +23,7 @@ This tutorial is intended to teach you to write a simple Market Maker Bot.
 2. After that, install client library Cryptology API:
 
     ``` {.sourceCode .bash}
-    pip3 install git+https://github.com/CryptologyExchange/cryptology-ws-client-python.git
+        pip install cryptology-ws-client
     ```
 
 ## Bot writing
@@ -96,7 +96,7 @@ This tutorial is intended to teach you to write a simple Market Maker Bot.
        loop.run_until_complete(main())
    ```
    
-   'MY ACCESS KEY' and 'MY SECRET KEY' are your access and secret keys generated at the previous step (you'll got your own ones).
+   'MY ACCESS KEY' and 'MY SECRET KEY' are your access and secret keys generated at the previous step (you'll get your own ones).
 
    Now run what you've got. The program terminates immediately. But why? 
    This is because the connection closes just after the method  `writer()`

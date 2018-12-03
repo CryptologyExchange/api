@@ -116,7 +116,7 @@ https://api.cryptology.com
 
 
 ```bash
-pip install cryptology-ws-client-python
+pip install cryptology-ws-client
 
 ```
 
