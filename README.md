@@ -47,15 +47,21 @@ Each amounts and a prices on Cryptology have 8 decimal places.
 
 Valid orders sent to the matching engine are confirmed immediately and are in the received state. If an order executes against another order immediately, the order is considered done. An order can execute in part or whole. Any part of an order not filled immediately, will be considered open. Orders will stay in the open state until canceled or subsequently filled by new orders. Orders that are no longer eligible for matching (filled or canceled) are in the done state.
 
-Currently WS API supports the following limit orders types: fill or kill (**FOK**) orders, immediate or cancel (**IOK**) orders, good 'til canceled (**GTC**) orders.
+Currently WS API supports the following limit orders types: fill or kill (**FOK**) orders,
+immediate or cancel (**IOK**) orders, good 'til canceled (**GTC**) orders, and good 'til day (**GTD**) orders.
 
-A fill or kill (**FOK**) is a type of time-in-force designation used in securities trading that instructs an exchange to execute a transaction immediately and completely or not at all. The order must be filled in its entirety or canceled (killed).
+A fill or kill (**FOK**) is a type of time-in-force designation used in securities trading that instructs an exchange
+to execute a transaction immediately and completely or not at all. The order must be filled in its entirety
+or canceled (killed).
 
-An immediate or cancel order (**IOC**) is an order to buy or sell a security that must be immediately filled. Any unfilled portion of the order is canceled.
+An immediate or cancel order (**IOC**) is an order to buy or sell a security that must be immediately filled.
+Any unfilled portion of the order is canceled.
 
-A good ’til canceled (**GTC**) describes an order a trader may place to buy or sell a security that remains active until either the order is filled or the trader cancels it.
+A good ’til canceled (**GTC**) describes an order a trader may place to buy or sell a security that remains
+active until either the order is filled or the trader cancels it.
 
-GTC order supports Time In Force instruction. Time in force is a special instruction used when placing a trade to indicate how long an order will remain active before it is executed or expires. These options are especially important for active traders and allow them to be more specific about the time parameters.
+A good 'til day order is an order which will be canceled at the time preset by a trader if it is not executed or cancelled until this time.  A GTD order contains the Time To Live (**TTL**) instruction.
+Time To Live is a special instruction which shows the time in which an order will be automatically canceled. 
 
 
 ## Fees
@@ -517,7 +523,7 @@ the UTC time zone. The second is a number of microseconds.
     }
     
    ```
-    
+
 
 -   `WithdrawalInitializedSuccess`
     : indicates that withdrawal is initialized and will be performed.
@@ -676,7 +682,7 @@ the UTC time zone. The second is a number of microseconds.
     
 
 -    `SelfTrade`
-     :   sent when the account perform self trading.
+     :   sent when the account performs self trading.
          `maker_buy` equals `true` if the opposite order was a buy order.
 
 > SelfTrade
@@ -1013,46 +1019,45 @@ Where "error" contains "code" of the error and optionally contains an error "mes
 
 ## Types
 
-**Order nature:**
+**Order nature**
 
 - BUY
 - SELL
 
-**Order status:**
+**Order status**
 
-- PENDING
-- NEW
-- FILLED
-- CANCELLED
+- PENDING - an order is being prepared for placing at the exchange
+- NEW - an order is placed at the exchange 
+- FILLED - an order is fully executed 
+- CANCELLED - an order is canceled 
 
-**Time in force:**
+**Time in force**
 
-- GTC
-- GTD
-- FOK
-- IOC
+- GTC stands for a good ’til canceled order
+- GTD stands for a good 'til day order
+- FOK stands for a fill or kill order
+- IOC stands for an immediate or cancel order
 
-**Payment status:**
+**Payment status**
 
-- INITIALIZED
-- PENDING
-- COMPLETE
-- DECLINED
+- INITIALIZED - withdrawal is initialized and will be made soon
+- PENDING - withdrawal is started 
+- COMPLETE - withdrawal is successfully completed
+- DECLINED - withdrawal is declined 
 
-**Order book type:**
+**Order book type**
 
 - AGGREGATED
-- BEST (currently unsupported)
-- FULL (currently unsupported)
-
+- BEST (currently not supported)
+- FULL (currently not supported)
 
 **Candles interval types**
 
-- M1
-- M20
-- H1
-- H6
-- D1
+- M1 - each candle includes a one-minute interval 
+- M20 - each candle includes a twenty-minute interval 
+- H1 - each candle includes a one-hour interval 
+- H6 - each candle includes a six-hour interval 
+- D1 - each candle includes a one-day interval
 
 
 # Private
@@ -1061,7 +1066,7 @@ Private endpoints are only available for authorized users.
 To make a request for authorisation you need send your access key in Access-Key header and your secret key in Secret-Key header. Each private request must contain Nonce header.
 Nonce is a unique five-minute-interval number.
 
-**Request headers example:**
+**Request headers example**
 
 ```
 POST /v1/private/get-balances HTTP/1.1
@@ -1076,13 +1081,17 @@ Nonce: 23
 
 ## Orders Management
 
+At Cryptology exchange you can place and cancel orders, and request for the information regarding the placed, canceled and executed orders. 
+
 ### Create order
+
+Creates an order with the specified parameters 
 
 ```
 POST /v1/private/create-order
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
@@ -1092,11 +1101,17 @@ POST /v1/private/create-order
 | time\_in\_force | No | IOC, FOK, GTC or GTD. GTC default
 | ttl | No | Only for GTD orders
 | amount | Yes | Decimal amount value
-| client\_order\_id | No | A unique id of order
+| client\_order\_id | No | A unique id of an order
 | price | Yes | Decimal price value
 | stop_price | No | Must be defined for stop-limit orders. Supported only for GTC orders
 
-**Response example:**
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| order_id  | Yes | A number, an internal unique identifier of an order.
+
+**Response example**
 
 ```json
 {
@@ -1106,17 +1121,38 @@ POST /v1/private/create-order
 
 ### Query for order
 
+Returns the information about an order placed by a trader
+
 ```
 GET /v1/private/get-order
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
 | order_id  | Yes | A valid order_id returned by create-order
 
-**Response data example:**
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| order_id  | Yes | A number, an internal unique identifier of an order
+| trade_pair  | Yes | A trading pair name
+| type | Yes | Only LIMIT orders are currently supported
+| side  | Yes | BUY/SELL
+| time\_in\_force | No | Time In Force of an order. IOC, FOK, GTC or GTD
+| ttl | No | Only for GTD orders
+| amount | Yes | Decimal amount value
+| executed_amount | Yes| A part of an order that is already executed
+| client\_order\_id | No | A unique id of an order specified by you at order creation
+| price | Yes | Decimal price value, specified by you at order creation 
+| stop_price | No | Must be defined for stop-limit orders. Applicable only to GTC orders
+| status | Yes | Current order status 
+| created_at | Yes | Unix timestamp in UTC. Order creation time
+| done_at | No | Unix timestamp in UTC. Order completion time. Applicable only to completed orders. 
+
+**Response data example**
 
 ```json
 {
@@ -1137,17 +1173,26 @@ GET /v1/private/get-order
 
 ### Cancel order
 
+Cancel an order previously created by a user. Only orders with the `NEW` status can be canceled.
+
 ```
 POST /v1/private/cancel-order
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
 | order_id  | Yes | A valid order_id returned by create-order
 
-**Response data example:**
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| cancelled_order  | Yes | A number, an internal unique identifier of an order
+
+
+**Response data example**
 
 ```json
 {
@@ -1155,10 +1200,11 @@ POST /v1/private/cancel-order
 }
 ```
 
-
 ### Get all client orders
 
-**PARAMETRS:**
+Returns the list of all user's orders of all statuses, not more than  `limit` at a time
+
+**REQUEST PARAMETRS**
 
 ```
 GET /v1/private/get-orders
@@ -1170,7 +1216,11 @@ GET /v1/private/get-orders
 | limit  | No | Max 500. Default 100
 | start\_created\_at  | No | Unix timestamp in UTC timezone
 
-**Response data example:**
+**RESPONSE FIELDS**
+
+The parameters are the same as for  `/v1/private/get-order`
+
+**Response data example**
 
 ```json
 [
@@ -1205,11 +1255,16 @@ GET /v1/private/get-orders
 
 ### Cancel all orders
 
+Cancels all orders with the  `NEW` status
+
 ```
 POST /v1/private/cancel-all-orders
 ```
 
-**Response data example:**
+Returns the list `order_id` of all canceled orders
+
+
+**Response data example**
 ```json
 [
     265167535,
@@ -1220,21 +1275,36 @@ POST /v1/private/cancel-all-orders
 
 ## Trades
 
+Returns the list of user's trades 
+
 ## List user trades
 
 ```
 GET /v1/private/get-trades
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
 | trade_pair  | No | Valid trading pair name
 | limit  | No | Max 500. Default 100
 | start  | No | Unix timestamp in UTC timezone
+| order_id  | No | Order identifier, within which trades are needed to be received
 
-**Response data example:**
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_pair  | No | Valid trading pair name
+| side  | Yes | BUY/SELL
+| order_id  | Yes | A number, an internal unique identifier of an order
+| trade_id  | Yes | A number, an internal unique identifier of a trader
+| price | Yes | Decimal price value, at which a trade has been carried out
+| amount | Yes | Decimal amount value
+| time  | Yes | Unix timestamp in UTC timezone. Trade execution time 
+
+**Response data example**
 
 ```json
 [
@@ -1261,13 +1331,16 @@ GET /v1/private/get-trades
 
 ## Account
 
+
 ### Get account balances
 
 ```
 GET /v1/private/get-balances
 ```
 
-**Response data example:**
+Endpoint returns the dictionary, where keys are currencies and values are balances which include both the available amount of funds, and those on hold, which can not be used at the moment.
+
+**Response data example**
 
 ```json
 {
@@ -1279,19 +1352,27 @@ GET /v1/private/get-balances
 
 ## Payments
 
-Payments via HTTPS API are only available for crypto currencies.
+Payments via HTTPS API are only available for cryptocurrencies.
 
 ### Generate new deposit address
+
+To top up a cryptocurrency account at Cryptology you can generate an address of the cryptocurrency wallet 
 
 ```
 POST /v1/private/create-deposit-address
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
 | currency  | Yes | Valid currency name
+
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| wallet  | Yes | Crypto address which can be used for depositing 
 
 **Response data example:**
 
@@ -1303,17 +1384,26 @@ POST /v1/private/create-deposit-address
 
 ### Get already generated deposit address
 
+To top up a cryptocurrency account you can also get an address that was previously generated. 
+If you have not generated it earlier, it will be generated automatically 
+
 ```
 GET /v1/private/get-deposit-address
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
 | currency  | Yes | Valid currency name
 
-**Response data example:**
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| wallet  | Yes | Crypto address which can be used for depositing 
+
+**Response data example**
 
 ```json
 {
@@ -1323,11 +1413,13 @@ GET /v1/private/get-deposit-address
 
 ### Withdraw
 
+Withdraws user's funds from the account to a specified address 
+
 ```
 POST /v1/private/create-withdrawal
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
@@ -1335,35 +1427,60 @@ POST /v1/private/create-withdrawal
 | amount  | Yes | Decimal amount value
 | wallet  | Yes | Valid wallet address
 
-**Response data example:**
+
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| payment_id  | Yes | Is a unique payment identifier.
+
+**Response data example**
 
 ```json
 {
-    "payment_id": "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
+    "payment_id": "1d4b2661-35a3-4b73-ae76-121bf38b088c"
 }
 ```
 
 ### Get information about withdrawal
 
+Returns the information about a previously made withdrawal 
+
 ```
 GET /v1/private/get-withdrawal
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
 | payment_id  | Yes | Valid payment id
 
+**RESPONSE FIELDS**
 
-**Response data example:**
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| status  | Yes | Withdrawal status
+| currency  | Yes | Currency name
+| amount  | Yes | Decimal amount value
+| transaction_info  | No | Information about a withdrawal in the blockchain. Applicable only to withdrawals with the COMPLETE status
+| created_at | Yes | Unix timestamp in UTC. Withdrawal initialization time
+| completed_at | No | Unix timestamp in UTC. Withdrawal completion time. Applicable only to withdrawals with the COMPLETE status
+
+**Response data example**
 
 ```json
 {
     "status": "COMPLETE",
-    "blockchain_tx_ids": [
+    "amount": "0.23",
+    "currency": "BTC",
+    "created_at": 1536669200,
+    "completed_at": 1536669200,
+    "transaction_info": {
+        "blockchain_tx_ids": [
             "0x124129474b1dcbdb4e39436de49f7e5987f46dc4b8740966655718d7a1da699b"
         ]
+    }
 }
 ```
 
@@ -1379,7 +1496,16 @@ Get available trading pairs
 GET /v1/public/get-trade-pairs
 ```
 
-**Response data example:**
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_pair  | Yes | Trading pair name
+| base_currency  | Yes | Base currency
+| quoted_currency  | Yes | Quoted currency
+
+
+**Response data example**
 
 ```json
 [
@@ -1398,11 +1524,13 @@ GET /v1/public/get-trade-pairs
 
 ## Get order book
 
+Returns the current order book for the specified pair in accordance with the bid and ask in a list format containing pairs "price" and  "amount".
+
 ```
 GET /v1/public/get-order-book
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
@@ -1410,7 +1538,7 @@ GET /v1/public/get-order-book
 | type  | Yes | AGGREGATED, BEST or FULL. Currently only AGGREGATED supported
 
 
-**Response data example:**
+**Response data example**
 
 ```json
 { "asks": [
@@ -1432,13 +1560,22 @@ GET /v1/public/get-order-book
 GET /v1/public/get-trades
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
 | trade_pair  | Yes | Valid trading pair name
 | limit  | No | Max 500. Default 100
 | start  | No | Unix timestamp in UTC timezone
+
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| trade_id  | Yes | A number, an internal unique identifier of a trade
+| price | Yes | Decimal price value, at which a trade was executed
+| amount | Yes | Decimal amount value
+| time  | Yes | Unix timestamp in UTC timezone. Trade execution time 
 
 **Response data example:**
 
@@ -1461,11 +1598,13 @@ GET /v1/public/get-trades
 
 ## List candles
 
+Returns the list of candles according to the specified parameters. Each candle starts from the time rounded  to an interval.
+
 ```
 GET /v1/public/get-candles
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
@@ -1476,7 +1615,19 @@ GET /v1/public/get-candles
 
 Maximum data points that can be requested is 300 candles.
 
-**Response data example:**
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| open | Yes | Decimal price value, at which the first trade was executed within a candle period
+| high | Yes | Maximum decimal price value, at which a trade was executed within a candle period 
+| low | Yes | Minimum decimal price value, at which a trade was executed within a candle period
+| close | Yes | Decimal price value, at which the last trade was executed within a candle period 
+| avg | Yes | Average decimal price value of trades executed within a candle period 
+| base_volume | Yes | Trading volume in a base currency within a candle period
+| time  | Yes | Unix timestamp in UTC timezone. Candle start time 
+
+**Response data example**
 
 ```json
 [
@@ -1484,7 +1635,7 @@ Maximum data points that can be requested is 300 candles.
       "time": 1536669600,
       "open": "128.76",
       "high": "135.2",
-      "low": "128",
+      "low": "127",
       "close": "127",
       "avg": "132.76",
       "base_volume": "12"
@@ -1503,17 +1654,28 @@ Maximum data points that can be requested is 300 candles.
 
 ## Get 24 hour statistics
 
+Returns statistics within previous 24 hours.
+
 ```
 GET /v1/public/get-24hrs-stat
 ```
 
-**PARAMETRS:**
+**REQUEST PARAMETRS**
 
 | Param name      | Required | Description          
 | :-------------: |:-------------:|:-------------|
 | trade_pair  | Yes | Valid trading pair name
 
-**Response data example:**
+**RESPONSE FIELDS**
+
+| Param name      | Required | Description          
+| :-------------: |:-------------:|:-------------|
+| open | Yes | Decimal price value, at which the first trade was executed within a candle period
+| high | Yes | Maximum decimal price value, at which a trade  was executed within a candle period
+| low | Yes | Minimum decimal price value, at which a trade was executed within a candle period
+| base_volume | Yes | Trading volume in a base currency within a candle period 
+
+**Response data example**
 
 ```json
 {
