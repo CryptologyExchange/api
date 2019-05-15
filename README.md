@@ -222,7 +222,7 @@ For example 656, 657, 658 etc.
     "access_key": "access key",
     "secret_key": "secret key",
     "last_seen_message_id": -1,
-    "version": 6,
+    "version": 7,
     "get_balances": true,
     "get_order_books": false
  }
@@ -246,7 +246,7 @@ For example 656, 657, 658 etc.
 ```json
 {
     "last_seen_sequence": 100000,
-    "server_version": 6,
+    "version": 7,
     "state": {
         "message_id": 5367625,
         "balances": {"BTC": {"available": "1",
