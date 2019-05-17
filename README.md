@@ -331,7 +331,7 @@ There are the following types of server response messages: **MESSAGE**, **THROTT
 | `message_id`     | int  | Is an incremental (but not necessarily sequential) value indicating message order on server and used by the client to skip processed events on reconnect                                                                                                        | Yes      |                                                      |
 | `timestamp`       | int  | Time of operation performed                                                                                                                                                                                                                                     | Yes      | Valid timestamp                                      |
 | `data`              | json | Body of message                                                                    | Yes |  |
-| `overflow_level`   | int  | Amount of orders the client should postpone sending to keep up with the rate limit | Yes |  |
+| `overflow_level`   | int  | Amount of milliseconds that the client should wait before sending a new message | Yes |  |
 | `client_order_id` | int  | Order id which is sent by client                                                      | No  |  |
 
 ### Errors
