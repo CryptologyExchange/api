@@ -20,7 +20,7 @@ Cryptology market operates a first come-first serve order matching. Orders are e
 To discourage wash trading, Cryptology exchange cancels smaller order and
 decreases larger order size by the smaller order size when two orders
 from the same client cross. Yet Cryptology charges taker fee for the smaller order.
- If the two orders are the same size, both will be canceled, yet 
+ If the two orders are the same size, both will be canceled, yet
  Cryptology will charge taker fee for one order.
 
 ## Rate Limit
@@ -31,7 +31,7 @@ a message with `THROTTLING` response type and
 `overflow_level` param which must be used for waiting for `overflow_level`
 milliseconds.
 
-## Unfair Price Prevention
+## Unfair Price Prevention for spot trading
 
 We prevent order placement with a price different from the market price by more than 10%.
 For example, if current best ask is 1000, you can't make Buy order with a price
@@ -47,8 +47,9 @@ Each amounts and a prices on Cryptology have 8 decimal places.
 
 Valid orders sent to the matching engine are confirmed immediately and are in the received state. If an order executes against another order immediately, the order is considered done. An order can execute in part or whole. Any part of an order not filled immediately, will be considered open. Orders will stay in the open state until canceled or subsequently filled by new orders. Orders that are no longer eligible for matching (filled or canceled) are in the done state.
 
-Currently WS API supports the following limit orders types: fill or kill (**FOK**) orders,
+Currently Spot WS API supports the following limit orders types: fill or kill (**FOK**) orders,
 immediate or cancel (**IOK**) orders, good 'til canceled (**GTC**) orders, and good 'til day (**GTD**) orders.
+Contracts WS API supports only good 'til canceled (**GTC**) orders (default type).
 
 A fill or kill (**FOK**) is a type of time-in-force designation used in securities trading that instructs an exchange
 to execute a transaction immediately and completely or not at all. The order must be filled in its entirety
@@ -61,12 +62,13 @@ A good ’til canceled (**GTC**) describes an order a trader may place to buy or
 active until either the order is filled or the trader cancels it.
 
 A good 'til day order is an order which will be canceled at the time preset by a trader if it is not executed or cancelled until this time.  A GTD order contains the Time To Live (**TTL**) instruction.
-Time To Live is a special instruction which shows the time in which an order will be automatically canceled. 
+Time To Live is a special instruction which shows the time in which an order will be automatically canceled.
+
 
 
 ## Fees
 
-[FAQ] (https://intercom.help/cryptologyexchange/english/frequently-asked-questions-faq)
+[FAQ](https://cryptology.com/faq/)
 
 ## Data Centers
 
@@ -92,10 +94,15 @@ wss://marketdata-sandbox.cryptology.com
 HTTPS API:
 https://api-sandbox.cryptology.com
 
+Contracts API:
+wss://contracts-api-sandbox.cryptology.com/v1/trading
+
+Octopus API:
+wss://octopus-sandbox.cryptology.com/v1/connect
 
 **Website:**
 
-[https://sandbox.cryptology.com] (https://sandbox.cryptology.com)
+[https://sandbox.cryptology.com](https://sandbox.cryptology.com)
 
 ## Production
 
@@ -111,11 +118,17 @@ wss://marketdata.cryptology.com
 HTTPS API:
 https://api.cryptology.com
 
+Contracts API:
+wss://contracts-api.cryptology.com/v1/trading
+
+Octopus API:
+wss://octopus.cryptology.com/v1/connect
+
 **Website:**
 
-[https://cryptology.com] (https://cryptology.com)
+[https://cryptology.com](https://cryptology.com)
 
-# WEBSOCKET API
+# SPOT WEBSOCKET API
 
 
 ## Installation
@@ -128,10 +141,10 @@ pip install cryptology-ws-client
 
 ## Usage
 
-Example of connection through our official Python client library for the Cryptology exchange WebSocket API.
+Example of connection through our official Python client library for the Cryptology exchange Spot WebSocket API.
 
 *For more information see our [documentation](https://github.com/CryptologyExchange/cryptology-ws-client-python)
-about our official Python client library and 
+about our official Python client library and
 [Writing Your Own Trading Bot from Scratch](https://github.com/CryptologyExchange/api/blob/master/trading_bot.md) tutorial*
 
 ```python
@@ -189,7 +202,7 @@ if __name__ == '__main__':
     loop.run_until_complete(main())
 ```
 
-# Trading protocol
+# Spot Trading protocol
 
 Cryptology API operates over the WebSocket protocol with PING
 heartbeat being sent every 4 seconds (for details about WebSocket protocol,
@@ -260,7 +273,7 @@ For example 656, 657, 658 etc.
     "greeting": "Welcome to Cryptology API Server",
     "trade_pairs": ["BTC_USD", "LTC_BTC", "ETH_USD"]
   }
- 
+
 ```
 | Name       | Description          |
 | :-------------: |:-------------|
@@ -428,7 +441,7 @@ the UTC time zone. The second is a number of microseconds.
     :   order was canceled (manual, TTL, IOC, FOK, tbd), end of order
         lifecycle
 
-> BuyOrderCancelled / SellOrderCancelled    
+> BuyOrderCancelled / SellOrderCancelled
 
 
    ```json
@@ -448,7 +461,7 @@ the UTC time zone. The second is a number of microseconds.
 -   `BuyOrderClosed`, `SellOrderClosed`
     :   order was fully executed, end of order lifecycle
 
-> BuyOrderClosed / SellOrderClosed   
+> BuyOrderClosed / SellOrderClosed
 
    ```json
     {
@@ -461,15 +474,15 @@ the UTC time zone. The second is a number of microseconds.
         "trade_pair": "BTC_USD",
         "client_order_id": 123
     }
-    
+
    ```
 
-    
+
 
 - `OrderNotFound`
     :   attempt to cancel a non-existing order was made
 
-> OrderNotFound 
+> OrderNotFound
 
 
    ```json
@@ -477,7 +490,7 @@ the UTC time zone. The second is a number of microseconds.
         "@type": "OrderNotFound",
         "order_id": 1
     }
-    
+
    ```
 
 
@@ -503,7 +516,7 @@ the UTC time zone. The second is a number of microseconds.
                     0
                 ]
             }
-    
+
    ```
 
 
@@ -512,8 +525,8 @@ the UTC time zone. The second is a number of microseconds.
 -   `InsufficientFunds`
     :   indicates that an account doesn't have enough funds to place an
         order
-    
-> InsufficientFunds  
+
+> InsufficientFunds
 
    ```json
     {
@@ -521,7 +534,7 @@ the UTC time zone. The second is a number of microseconds.
         "order_id": 1,
         "currency": "USD"
     }
-    
+
    ```
 
 
@@ -539,10 +552,10 @@ the UTC time zone. The second is a number of microseconds.
         "to_wallet": "your_wallet_address",
         "payment_id": "54085bc9-d699-443a-ab3e-2160e9d2e38e"
     }
-    
+
    ```
 
-    
+
 
 > `your_wallett_address`  is your wallet address where payment will
     be transferred, `payment_id` is a unique payment identifier.
@@ -550,7 +563,7 @@ the UTC time zone. The second is a number of microseconds.
 -   `DepositAddressGenerated`
     : returns generated address for crypto deposits.
 
-> DepositAddressGenerated    
+> DepositAddressGenerated
 
    ```json
     {
@@ -558,7 +571,7 @@ the UTC time zone. The second is a number of microseconds.
         "currency": "BTC",
         "wallet_address": "your_deposit_wallet_address"
     }
-    
+
    ```
 
 
@@ -588,16 +601,16 @@ the UTC time zone. The second is a number of microseconds.
             0
         ]
     }
-    
+
    ```
 
-    
+
 
 -   `WithdrawalTransactionAccepted`
     :   indicates transaction information when withdrawing crypto funds from
         the account
 
-> WithdrawalTransactionAccepted 
+> WithdrawalTransactionAccepted
 
    ```json
     {
@@ -616,16 +629,16 @@ the UTC time zone. The second is a number of microseconds.
             0
         ]
     }
-    
+
    ```
 
-    
+
 
 -   `DepositAddressGeneratingError`
     :    indicates that generating deposit address finished with error
-    
 
-> DepositAddressGeneratingError  
+
+> DepositAddressGeneratingError
 
    ```json
     {
@@ -634,12 +647,12 @@ the UTC time zone. The second is a number of microseconds.
     }
    ```
 
-    
+
 
 -   `WithdrawalError`
     :    indicates that withdrawal not performed because error caused
-    
-> WithdrawalError    
+
+> WithdrawalError
 
    ```json
     {
@@ -649,7 +662,7 @@ the UTC time zone. The second is a number of microseconds.
    ```
 
 
-    
+
 
 ## General
 
@@ -676,10 +689,10 @@ the UTC time zone. The second is a number of microseconds.
         "order_id": 1,
         "client_order_id": 123
     }
-    
+
    ```
 
-    
+
 
 -    `SelfTrade`
      :   sent when the account performs self trading.
@@ -705,10 +718,10 @@ the UTC time zone. The second is a number of microseconds.
          "fee": "0.0002",
          "client_order_id": 123
      }
-     
+
    ```
 
-     
+
 
 ## Client Messages
 
@@ -750,7 +763,7 @@ all limit order placement messages share the same structure
 ```
 
 > `client_order_id` is an optional tag to relate server messages to client ones.
-`ttl` is the time the order is valid for. 0 means valid forever. 
+`ttl` is the time the order is valid for. 0 means valid forever.
 `ttl` is available only for limit bid, limit ask orders and for
 conditional orders messages.
 
@@ -799,15 +812,15 @@ Internal `order` `price` is a price of an order which will be created after the 
         "@type": "CancelOrder",
         "order_id": 42
     }
-    
+
    ```
 
-    
+
 
 -   `CancelAllOrders`
     :   cancel all active orders opened by the client
 
-  
+
 
 > CancelAllOrders
 
@@ -815,7 +828,7 @@ Internal `order` `price` is a price of an order which will be created after the 
     {
         "@type": "CancelAllOrders"
     }
-    
+
    ```
 
 
@@ -857,7 +870,7 @@ For this purpose, you can use `MoveOrder` message.
         "amount": "0.32",
         "to_wallet": "your_wallet_address"
     }
-    
+
    ```
 
 
@@ -866,11 +879,11 @@ For this purpose, you can use `MoveOrder` message.
     `WithdrawalInitializedSuccess` or `WithdrawalError` message.
     See Server Messages / [Wallet](#wallet) Section for details.
 
--   For generating crypto address for deposit to your account you can 
+-   For generating crypto address for deposit to your account you can
     use `GenerateDepositAddress` message.
-    
 
-> GenerateDepositAddress 
+
+> GenerateDepositAddress
 
    ```json
     {
@@ -878,12 +891,12 @@ For this purpose, you can use `MoveOrder` message.
         "currency": "LTC",
         "create_new": true
     }
-    
-    
+
+
    ```
 
 
-    
+
 > where `create_new` flag means that if you already have generated an address,
     it will be returned. Otherwise, a new address will be generated if it is
     permitted for your account. After sending this message, you can receive
@@ -891,9 +904,478 @@ For this purpose, you can use `MoveOrder` message.
     See Server Messages / [Wallet](#wallet) Section for details.
 
 
+# Contracts Trading protocol
+
+Cryptology API operates over the WebSocket protocol (for details about WebSocket protocol,
+read [RFC 6455](https://tools.ietf.org/html/rfc6455)).
+
+## Authentication
+
+To make a request with authorization you need send your access key in Access-Key header and your secret key in Secret-Key header.
+
+If authentication is successfully complete you are receive the following message:
+
+```
+Welcome to Cryptology Contracts platform
+```
+
+If authentication failed you are received the following message:
+
+```json
+{
+    "type": "CommonError",
+    "code": "INVALID_KEY",
+    "message": "invalid access or secret key",
+}
+
+```
+
+## Requests
+
+Request example
+
+```json
+{
+    "@type": "CancelOrder",
+    "order_id": "dcfd4f24-9d50-4b76-82e5-47b6a58e4dad",
+    "instrument_id": "BTC_PERPETUAL",
+}
+
+```
+
+ ## Responses
+
+ Response example:
+
+```json
+{
+    "message_id": "12345:3",
+    "type": "OrderCancelled",
+    "time": 1584374824023984764,
+    "payload": {
+        "reason": "manual",
+        "order_id": "21f650e1-f99d-49f4-9d6c-b4d449bb945e",
+        "cancelling_time": 1584374824.013984764,
+        "instrument_id": "BTC_PERPETUAL",
+        "remaining_volume": "1270",
+    }
+}
+
+```
+
+ **Params:**
+
+ | Name            | Type | Description                                                                                                                                                                                                                                                     | Required | Constraints                                          |
+ | --------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------- |
+ | `type`  | enum | Message type                                                                                                                                                                                                                                                   | Yes      | One of documented message types |
+ | `message_id`     | string  | Is an unique value indicating message order on server and used by the client to skip processed events on reconnect. You can start messages receiving from specific id by sending Msg-Id header with authentication request | Yes      |                                                      |
+ | `time`       | int  | Time of operation performed                                                                                                                                                                                                                                     | Yes      | Valid timestamp, nanoseconds                                      |
+ | `payload`              | json | Body of message                                                                    | Yes |   |  |
 
 
-# Market Data Protocol
+## Server messages
+
+### Order lifecycle
+
+-   `OrderPlaced`
+    :   order was received and executed.
+
+
+> OrderPlaced
+
+```json
+{
+    "message_id": "1098635:4",
+    "type": "OrderPlaced",
+    "time": 1584374824023984764,
+    "payload": {
+        "order_id": "21f650e1-f99d-49f4-9d6c-b4d449bb945e",
+        "request_id": "d5c10dec-0fa6-4d50-9d1d-2ae69d83cb1a",
+        "created_at": 1584370854013984760,
+        "instrument_id": "BTC_PERPETUAL",
+        "order_side": "buy",
+        "price": "10201.5",
+        "volume": "120"
+    }
+}
+```
+
+-   `OrderCancelled`
+    :   order was canceled (manual), end of order
+        lifecycle
+
+> OrderCancelled
+
+```json
+{
+    "message_id": "222:56",
+    "type": "OrderCancelled",
+    "time": 1584374824023984764,
+    "payload": {
+        "reason": "manual",
+        "order_id": "21f650e1-f99d-49f4-9d6c-b4d449bb945e",
+        "cancelling_time": 1584374824.013984764,
+        "instrument_id": "BTC_PERPETUAL",
+        "remaining_volume": "1270",
+    }
+}
+```
+
+-   `OrderClosed`
+    :   order was fully executed, end of order lifecycle
+
+> OrderClosed
+
+```json
+{
+    "message_id": "17000230021:9",
+    "type": "OrderClosed",
+    "time": 1584374824023984764,
+    "payload": {
+        "order_id": "21f650e1-f99d-49f4-9d6c-b4d449bb945e",
+        "instrument_id": "BTC_PERPETUAL",
+    }
+}
+```
+
+
+-   `OrderRejected`
+    :   order was rejected by exchange by the following reasons:
+`LEADS_TO_LIQUIDATION`, `LIQUIDATION_AVOIDING`, `EXPIRATION`,
+this message indicate end of order lifecycle
+
+> OrderRejected
+
+```json
+{
+    "message_id": "222:56",
+    "type": "OrderRejected",
+    "time": 1584374824023984764,
+    "payload": {
+        "reason": "LIQUIDATION_AVOIDING",
+        "order_id": "c0396c86-ed85-4bb1-b3d2-e313712d50f8",
+        "rejecting_time": 1584374824.013984764,
+        "instrument_id": "BTC_PERPETUAL",
+        "remaining_volume": "5000",
+    }
+}
+```
+
+-   `AllOrdersCancelled`
+    :   CancelAllOrders request successfully complete.
+`OrderCancelled` will be returned earlier for each order
+
+> AllOrdersCancelled
+
+```json
+{
+    "message_id": "2203432:4",
+    "type": "AllOrdersCancelled",
+    "time": 1584374824023984764,
+    "payload": {
+        "reason": "manual",
+        "order_ids": ["21f650e1-f99d-49f4-9d6c-b4d449bb945e", "d5eaa66d-cdf7-4400-96f8-3d54b5dc6e2b"],
+        "cancelling_time": 1584374829.013984764,
+        "instrument_id": "BTC_PERPETUAL",
+    }
+}
+```
+
+### Errors
+
+-   `OrderPlacingError`
+    :   order was received, but not executed because error was occurred.
+
+> OrderPlacingError
+
+```json
+{
+    "message_id": "1598635:40",
+    "type": "OrderPlacingError",
+    "time": 1584374824026984764,
+    "payload": {
+        "order_id": "21f650e1-f99d-49f4-9d6c-b4d449bb945e",
+        "request_id": "d5c10dec-0fa6-4d50-9d1d-2ae69d83cb1a",
+        "error_code": "INSUFFICIENT_FUNDS"
+    }
+}
+```
+
+-   `OrderCancellingError`
+    :   order cancelling request was failed.
+
+> OrderCancellingError
+
+```json
+{
+    "message_id": "1298635:4",
+    "type": "OrderCancellingError",
+    "time": 1584374924023984764,
+    "payload": {
+        "order_id": "41f650e1-f99d-49f4-9d6c-b4d449bb945e",
+        "request_id": "d5c10dec-0fa6-4d50-9d1d-2ae69d83cb1a",
+        "error_code": "ORDER_NOT_FOUND"
+    }
+}
+```
+
+-   `AllOrdersCancellingError`
+    :   all orders cancelling request was failed.
+
+> AllOrdersCancellingError
+
+```json
+{
+    "message_id": "1108635:4",
+    "type": "AllOrdersCancellingError",
+    "time": 1584374024023984764,
+    "payload": {
+        "error_code": "INSTRUMENT_IS_NOT_ACTIVE"
+    }
+}
+```
+
+-   `CommonError`
+    :   common error.
+
+> CommonError
+
+```json
+{
+    "message_id": "116788635:4",
+    "type": "CommonError",
+    "code": "INTERNAL_SERVER_ERROR",
+    "request_id": "d5c10dec-a7a6-4d50-9d1d-2ae69d83cb1a"
+}
+```
+
+### Info messages
+
+-   `AllOrders`
+    :   contain list of all placed and not finished orders in order book retrieved by user request.
+
+> AllOrders
+
+```json
+{
+    "message_id": "222000:46",
+    "type": "AllOrdersCancelled",
+    "time": 1584374824023984764,
+    "payload": {
+        "instrument_id": "BTC_PERPETUAL",
+        "orders": [
+            {
+                "id": "21f650e1-f99d-49f4-9d6c-b4d449bb945e",
+                "placing_time": 1584370854013984760,
+                "side": "sell",
+                "price": "9800.5",
+                "avg_price": "9810",
+                "volume": "3500",
+                "initial_volume": "4000",
+            },
+            {
+                "id": "b61298b6-e9e3-4edb-a9fa-ad573f694726",
+                "placing_time": 1584370874013984760,
+                "side": "buy",
+                "price": "9750",
+                "avg_price": "9750",
+                "volume": "2000",
+                "initial_volume": "2000",
+            }
+        ]
+    }
+}
+```
+
+-   `Position`
+    :   contain current user position. Can be retrieved due user request
+
+> Position
+
+```json
+{
+    "message_id": "223060:46",
+    "type": "Position",
+    "time": 1584374814223974734,
+    "payload": {
+        "instrument_id": "BTC_PERPETUAL",
+        "position": {
+            "avg_price": "10000",
+            "value": "5000",
+            "type": "long",
+            "base_volume": "0.5",
+            "base_remainder": "0.5",
+            "realised_pnl": "0"
+        }
+    }
+}
+```
+
+-   `Trade`
+    :   contain user trade.
+
+> Trade
+
+```json
+{
+    "message_id": "233060:0",
+    "type": "Trade",
+    "time": 1584374814223974734,
+    "payload": {
+        "instrument_id": "BTC_PERPETUAL",
+        "order_id": "c0396c86-ed85-abb1-b3d2-e313712d50f8",
+        "order_new_volume": "11998",
+        "fee": "0.00000015",
+        "volume": "2",
+        "price": "10000",
+        "is_self_trade": false,
+    }
+}
+```
+
+-   `SystemInfo`
+    :   contain information about system status.
+
+> SystemInfo
+
+    ```json
+    {
+        "type": "SystemInfo",
+        "maintenance_mode_enabled": "false",
+        "instruments_maintenance_mode": {
+            "BTC_PERPETUAL": false,
+            "GRAM_BTC": false
+        }
+    }
+
+    ```
+
+-   `Balance`
+    :   contain current user balances (available and on hold). Sent every time when changed.
+
+> Balance
+
+```json
+{
+    "message_id": "233060:0",
+    "type": "Balance",
+    "time": 1584354814223974734,
+    "payload": {
+        "currency": "BTC",
+        "available": "9.97",
+    }
+}
+```
+
+-   `MaintenanceModeChanged`
+    : contain information about new maintenance mode status.
+
+> MaintenanceModeChanged for instrument
+
+```json
+{
+    "message_id": "233460:0",
+    "type": "MaintenanceModeChanged",
+    "time": 1584353814223974734,
+    "payload": {
+        "enabled": true,
+        "instrument_id": "BTC_PERPETUAL"
+    }
+}
+```
+
+> MaintenanceModeChanged for system
+
+```json
+{
+    "message_id": "2253460:0",
+    "type": "MaintenanceModeChanged",
+    "time": 1584353814223974734,
+    "payload": {
+        "enabled": true,
+    }
+}
+```
+
+## Client messages
+
+### Orders management
+
+-   `PlaceOrder`
+    : execute order. The result will be a message with type `OrderPlaced` or `OrderPlacingError`
+
+
+> PlaceOrder
+
+```json
+{
+    "@type": "PlaceOrder",
+    "instrument_id": "BTC_PERPETUAL",
+    "side": "sell",
+    "type": "limit",
+    "price": "5440.5",
+    "volume": "10000",
+    "request_id": "35f658e1-fa9d-49f4-9d6c-b4d449bb945e",
+}
+```
+
+-   `CancelOrder`
+    : cancel order. The result will be a message with type `OrderCancelled` or `OrderCancellingError`
+
+
+> CancelOrder
+
+```json
+{
+    "@type": "CancelOrder",
+    "order_id": "35f058e1-fa9d-49f4-9d6c-b4a449bb945e",
+    "instrument_id": "BTC_PERPETUAL"
+}
+```
+
+-   `CancelAllOrders`
+    : cancel all orders which is not finished.
+      The result will be a message `AllOrdersCancelled` or `AllOrdersCancellingError`
+
+> CancelAllOrders
+
+```json
+{
+    "@type": "CancelAllOrders",
+    "instrument_id": "BTC_PERPETUAL"
+}
+```
+
+### Info messages
+
+-   `GetPosition`
+    : request to retrieve current user position. The result will be a message with type `Position`
+
+
+> GetPosition
+
+```json
+{
+    "@type": "GetPosition",
+    "instrument_id": "BTC_PERPETUAL"
+}
+```
+
+-   `GetAllOrders`
+    : request to retrieve all orders which is not finished.
+
+
+> GetAllOrders
+
+```json
+{
+    "@type": "GetAllOrders",
+    "instrument_id": "BTC_PERPETUAL"
+}
+```
+
+
+# Spot market Data Protocol
 
 Market data is broadcasted via web socket. It is read only
 and has no integrity checks aside of Web Socket built-in mechanisms.
@@ -921,7 +1403,7 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
         "trade_pair": "BTC_USD",
         "current_order_id": 123456
     }
-    
+
    ```
 
 
@@ -943,9 +1425,274 @@ and has no integrity checks aside of Web Socket built-in mechanisms.
         "price": "555",
         "maker_buy": false
     }
-    
+
    ```
 
+# Octopus market data protocol
+
+Octopus is a new market data server by which you can subscribe to spot market data and contracts market data.
+
+With Octopus you can subscribe to channel with data on which you want to receive updates.
+Currently available the next channels:
+
+- Spot platform:
+
+    - `spotTrades` - all new trades
+
+    - `spotTicker` - ticker updates on Spot platform
+
+- Contracts platform
+
+    - `contractsTrades` - trades on Contracts platform
+
+    - `contractsTicker` - ticker updates on Contracts platform
+
+    - `contractsOrderbookVolumes` - order book volumes updates
+
+## Subscription management
+
+After connection to Octopus via WSS you will receive welcomeMessage.
+
+> welcomeMessage example
+
+```json
+{
+  "server_timestamp": 1569319371576,
+  "type": "welcomeMessage",
+  "payload": {
+    "connection_id": "36e662db-880e-4fff-8c05-aede97e975c7",
+    "message": "Welcome to Cryptology!"
+  }
+}
+```
+
+Next you can subscribe to data updates. For this you need send `subscribe` message in the following format:
+
+> subscribe
+
+```json
+{
+  "type": "subscribe",
+  "channel": "contractsTrades.BTC_PERPETUAL",
+  "request_id": "my_unique_request_id_for_contractsTrades.BTC_PERPETUAL_3"
+}
+```
+
+| Name            | Type | Description                                                               | Required | Constraints |
+| --------------- | ---- | ------------------------------------------------------------------------- | -------- | ------------------------------- |
+| `type`          | enum | Message type (subscribe, unsubscribe, unsubscribeAll, getSubscriptions)   | Yes      | One of documented message types |
+| `channel`       | string  | Contain name of supported channel, dot (.) and name of instrument      | Yes      |                                 |
+| `request_id`    | string  | Identifier of subscription                                             | Yes      | Unique for channel              |
+
+If you are subscribed successfully, you will receive `subscribedSuccessful` message.
+
+> subscribedSuccessful
+
+```json
+{
+  "server_timestamp": 1568800623123,
+  "type": "subscribedSuccessful",
+  "request_id": "my_unique_request_id_for_contractsTrades.BTC_PERPETUAL_3",
+  "payload": {
+    "channel": "contractsTrades.BTC_PERPETUAL"
+  }
+}
+```
+
+If subscription fails you will receive `errorMessage`.
+
+> errorMessage
+
+```json
+{
+  "server_timestamp": 1568801651123,
+  "type": "errorMessage",
+  "payload": {
+    "code": "COMMON_ERROR",
+    "message": "invalid request params: request_id is required field"
+  }
+}
+```
+
+You can unsubscribe from channel with `unsubscribe` message and `request_id` of previously created subscription.
+
+> unsubscribe
+
+```json
+{
+  "type": "unsubscribe",
+  "request_id": "my_unique_request_id_for_contractsTrades.BTC_PERPETUAL_3"
+}
+```
+
+If you have previously subscribed you will receive `unsubscribedSuccessful` message
+
+> unsubscribedSuccessful
+
+```json
+{
+  "server_timestamp": 1568802316123,
+  "type": "unsubscribedSuccessful",
+  "request_id": "my_unique_request_id_for_contractsTrades.BTC_PERPETUAL_3",
+  "payload": {}
+}
+```
+
+else you will receive `errorMessage`
+
+> errorMessage
+
+```json
+{
+  "server_timestamp": 1568802378123,
+  "type": "errorMessage",
+  "request_id": "my_unique_request_id_for_turboTrades.BTC_PERPETUAL_4",
+  "payload": {
+    "code": "COMMON_ERROR",
+    "message": "can't unsubscribe: connection ea8e27e2-469a-42a9-88ef-1aa6dfd908e4 is not subscribed with id my_unique_request_id_for_turboTrades.BTC_PERPETUAL_4"
+  }
+}
+```
+
+You can unsubscribe from all subscriptions by sending `unsubscribeAll` request
+
+> unsubscribeAll
+
+```json
+{
+  "type": "unsubscribeAll"
+}
+```
+
+as result you will receive `unsubscribeAllSuccessfull` message
+
+> unsubscribeAllSuccessfull
+
+```json
+{
+  "server_timestamp": 1568802459123,
+  "type": "unsubscribedAllSuccessful",
+  "payload": {
+    "subscriptions": {
+      "my_unique_request_id_for_contractsTrades.BTC_PERPETUAL": "contractsTrades.BTC_PERPETUAL",
+      "my_unique_request_id_for_contractsTrades.BTC_PERPETUAL_2": "contractsTrades.BTC_PERPETUAL"
+    }
+  }
+}
+```
+
+If you want to get your all subscriptions, you need to send `getSubscriptions` request
+
+> getSubscriptions
+
+```json
+{
+  "type": "getSubscriptions"
+}
+```
+
+as result you will receive `subscriptionList` message
+
+> subscriptionList
+
+```json
+{
+  "server_timestamp": 1568802459143,
+  "type": "subscriptionList",
+  "payload": {
+    "subscriptions": {
+      "my_unique_request_id_for_contractsTrades.BTC_PERPETUAL": "contractsTrades.BTC_PERPETUAL",
+      "my_unique_request_id_for_contractsTrades.BTC_PERPETUAL_2": "contractsTrades.BTC_PERPETUAL"
+    }
+  }
+}
+```
+
+## Data format definition
+
+- Contracts ticker update (`contractsTicker` channel)
+
+| Name            | Type | Description                                                               | Required |
+| --------------- | ---- | ------------------------------------------------------------------------- | -------- |
+| offset          | int  | Unique update identifier                                                  | Yes      |
+| instrument_id   | string | Instrument identifier                                                   | Yes      |
+| mark_price      | decimal | Mark price                                                             | No       |
+| fair_price      | decimal | Fair price                                                             | No       |
+| last_trade_price | decimal | Price of last trade                                                   | No       |
+| index_price      | decimal | Price of underlying index                                             | No       |
+| last_funding_time | int | Unix time of last funding, milliseconds                                  | No       |
+| funding_rate | decimal | Current funding rate                                                      | No       |
+| funding_interval | int | Interval between funding, milliseconds                                    | No       |
+| premium_index    | decimal | Current premium index value                                           | No       |
+| interest_rate    | decimal | Interest rate                                                         | No       |
+| 1d_high          | decimal | Maximum price per last day                                            | No       |
+| 1d_low           | decimal | Minimum price per last day                                            | No       |
+| 1d_volume        | decimal | One day volume                                                        | No       |
+| best_bid         | decimal | Best bid price in order book                                          | No       |
+| best_ask         | decimal | Best ask price in order book                                          | No       |
+| price_change     | decimal | Change of price for last 24 hours                                     | No       |
+
+- Spot ticker update (`spotTicker` channel)
+
+| Name            | Type | Description                                                               | Required |
+| --------------- | ---- | ------------------------------------------------------------------------- | -------- |
+| offset          | int  | Unique update identifier                                                  | Yes      |
+| trade_pair      | string | Trade pair identifier                                                   | Yes      |
+| last_trade_price | decimal | Price of last trade                                                   | No       |
+| best_bid         | decimal | Best bid price in order book                                                    | No       |
+| best_ask         | decimal | Best ask price in order book                                                    | No       |
+| price_change     | decimal | Change of price for last 24 hours                                               | No       |
+
+- Trade on Contracts platform (`contractsTrades` channel)
+
+| Name            | Type | Description                                                               | Required |
+| --------------- | ---- | ------------------------------------------------------------------------- | -------- |
+| offset          | int  | Unique update identifier                                                  | Yes      |
+| instrument_id   | string | Instrument identifier                                                   | Yes      |
+| created_at      | int | Unix timestamp of trade execution, milliseconds                            | Yes      |
+| taker_order_type | string | Type of taker order (BUY or SELL)                                               | Yes      |
+| volume           | decimal | Deal volume                                                                     | Yes      |
+| price            | decimal | Deal price                                                                      | Yes      |
+
+- Trade on Spot (`spotTrades` channel)
+
+| Name            | Type | Description                                                               | Required |
+| --------------- | ---- | ------------------------------------------------------------------------- | -------- |
+| offset          | int  | Unique update identifier                                                  | Yes      |
+| trade_pair   | string | Trade pair identifier                                                      | Yes      |
+| created_at      | int | Unix timestamp of trade execution, milliseconds                            | Yes      |
+| maker_buy | bool | True if maker have a buy side in deal                                           | Yes      |
+| amount           | decimal | Deal amount                                                           | Yes      |
+| price            | decimal | Deal price                                                            | Yes      |
+
+- Contracts platform order book volume update (`contractsOrderbookVolumes` channel)
+
+| Name            | Type | Description                                                               | Required |
+| --------------- | ---- | ------------------------------------------------------------------------- | -------- |
+| offset          | int  | Unique update identifier                                                  | Yes      |
+| instrument_id   | string | Instrument identifier                                                   | Yes      |
+| volumes         | map | Bids and asks volumes on prices                                            | Yes      |
+| timestamp       | int | Unix timestamp of change                                                   | Yes      |
+
+## Rate limit
+
+If you want to limit incoming stream of data, you can send `rate_limit` parameter with subscribing
+    (only for contractsTicker and spotTicker)
+
+> Rate limit example
+
+```json
+{
+  "type": "subscribe",
+  "channel": "contractsTickers.GRAM_BTC_PERPETUAL",
+  "request_id": "my-req-id-5",
+  "params": {
+    "rate_limit": 10
+  }
+}
+```
+
+`rate_limit` 10 mean than you will receive maximum 10 updates per second.
 
 # HTTPS API
 
@@ -1006,12 +1753,12 @@ Where "error" contains "code" of the error and optionally contains an error "mes
 
 ## Error Codes
 
-| Param name      | Description          
+| Param name      | Description
 | :-------------: |:-------------|
 | `INSUFFICIENT_FUND`  | You don't have enough money for operation
 | `INVALID_REQUEST`    | Invalid request arguments
 | `INVALID_KEY`        | You need to send correct Access-Key and Secret-Key headers
-| `INVALID_TIMESTAMP`  | Your timestamp must be within 30 seconds from the api server time. We can use the /public/time endpoint to query for the API server time. 
+| `INVALID_TIMESTAMP`  | Your timestamp must be within 30 seconds from the api server time. We can use the /public/time endpoint to query for the API server time.
 | `PERMISSION_DENIED`  | Your API key does not have permissions for this request.
 | `TOO_MANY_REQUESTS`  | You have reached the rate limit.
 | `DUPLICATE_CLIENT_ORDER_ID`  | You can't create two orders with the same `client_order_id`
@@ -1027,9 +1774,9 @@ Where "error" contains "code" of the error and optionally contains an error "mes
 **Order status**
 
 - `PENDING` - an order is being prepared for placing at the exchange
-- `NEW` - an order is placed at the exchange 
-- `FILLED` - an order is fully executed 
-- `CANCELLED` - an order is canceled 
+- `NEW` - an order is placed at the exchange
+- `FILLED` - an order is fully executed
+- `CANCELLED` - an order is canceled
 
 **Time in force**
 
@@ -1041,9 +1788,9 @@ Where "error" contains "code" of the error and optionally contains an error "mes
 **Payment status**
 
 - `INITIALIZED` - withdrawal is initialized and will be made soon
-- `PENDING` - withdrawal is started 
+- `PENDING` - withdrawal is started
 - `COMPLETE` - withdrawal is successfully completed
-- `DECLINED` - withdrawal is declined 
+- `DECLINED` - withdrawal is declined
 
 **Order book type**
 
@@ -1053,10 +1800,10 @@ Where "error" contains "code" of the error and optionally contains an error "mes
 
 **Candles interval types**
 
-- `M1` - each candle includes a one-minute interval 
-- `M20` - each candle includes a twenty-minute interval 
-- `H1` - each candle includes a one-hour interval 
-- `H6` - each candle includes a six-hour interval 
+- `M1` - each candle includes a one-minute interval
+- `M20` - each candle includes a twenty-minute interval
+- `H1` - each candle includes a one-hour interval
+- `H6` - each candle includes a six-hour interval
 - `D1` - each candle includes a one-day interval
 
 
@@ -1081,11 +1828,11 @@ Nonce: 23
 
 ## Orders Management
 
-At Cryptology exchange you can place and cancel orders, and request for the information regarding the placed, canceled and executed orders. 
+At Cryptology exchange you can place and cancel orders, and request for the information regarding the placed, canceled and executed orders.
 
 ### Create order
 
-Creates an order with the specified parameters 
+Creates an order with the specified parameters
 
 ```
 POST /v1/private/create-order
@@ -1093,7 +1840,7 @@ POST /v1/private/create-order
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_pair`  | Yes | A valid trading pair name
 | `type` | Yes | Only LIMIT orders are currently supported
@@ -1107,7 +1854,7 @@ POST /v1/private/create-order
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `order_id`  | Yes | A number, an internal unique identifier of an order.
 
@@ -1129,13 +1876,13 @@ GET /v1/private/get-order
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `order_id`  | Yes | A valid order_id returned by create-order
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `order_id`  | Yes | A number, an internal unique identifier of an order
 | `trade_pair`  | Yes | A trading pair name
@@ -1146,11 +1893,11 @@ GET /v1/private/get-order
 | `amount` | Yes | Decimal amount value
 | `executed_amount` | Yes| A part of an order that is already executed
 | `client_order_id` | No | A unique id of an order specified by you at order creation
-| `price` | Yes | Decimal price value, specified by you at order creation 
+| `price` | Yes | Decimal price value, specified by you at order creation
 | `stop_price` | No | Must be defined for stop-limit orders. Applicable only to GTC orders
-| `status` | Yes | Current order status 
+| `status` | Yes | Current order status
 | `created_at` | Yes | Unix timestamp in UTC. Order creation time
-| `done_at` | No | Unix timestamp in UTC. Order completion time. Applicable only to completed orders. 
+| `done_at` | No | Unix timestamp in UTC. Order completion time. Applicable only to completed orders.
 
 **Response data example**
 
@@ -1181,13 +1928,13 @@ POST /v1/private/cancel-order
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `order_id`  | Yes | A valid order_id returned by create-order
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `cancelled_order`  | Yes | A number, an internal unique identifier of an order
 
@@ -1209,7 +1956,7 @@ Returns the list of all user's orders of all statuses, not more than  `limit` at
 ```
 GET /v1/private/get-orders
 ```
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_pair`  | No | Valid trading pair name
 | `status`  | No | Valid order status
@@ -1275,7 +2022,7 @@ Returns the list `order_id` of all canceled orders
 
 ## Trades
 
-Returns the list of user's trades 
+Returns the list of user's trades
 
 ## List user trades
 
@@ -1285,7 +2032,7 @@ GET /v1/private/get-trades
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_pair`  | No | Valid trading pair name
 | `limit`  | No | Max 500. Default 100
@@ -1294,7 +2041,7 @@ GET /v1/private/get-trades
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_pair`  | No | Valid trading pair name
 | `side`  | Yes | BUY/SELL
@@ -1302,7 +2049,7 @@ GET /v1/private/get-trades
 | `trade_id`  | Yes | A number, an internal unique identifier of a trader
 | `price` | Yes | Decimal price value, at which a trade has been carried out
 | `amount` | Yes | Decimal amount value
-| `time`  | Yes | Unix timestamp in UTC timezone. Trade execution time 
+| `time`  | Yes | Unix timestamp in UTC timezone. Trade execution time
 
 **Response data example**
 
@@ -1356,7 +2103,7 @@ Payments via HTTPS API are only available for cryptocurrencies.
 
 ### Generate new deposit address
 
-To top up a cryptocurrency account at Cryptology you can generate an address of the cryptocurrency wallet 
+To top up a cryptocurrency account at Cryptology you can generate an address of the cryptocurrency wallet
 
 ```
 POST /v1/private/create-deposit-address
@@ -1364,15 +2111,15 @@ POST /v1/private/create-deposit-address
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `currency`  | Yes | Valid currency name
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
-| `wallet`  | Yes | Crypto address which can be used for depositing 
+| `wallet`  | Yes | Crypto address which can be used for depositing
 
 **Response data example:**
 
@@ -1384,8 +2131,8 @@ POST /v1/private/create-deposit-address
 
 ### Get already generated deposit address
 
-To top up a cryptocurrency account you can also get an address that was previously generated. 
-If you have not generated it earlier, it will be generated automatically 
+To top up a cryptocurrency account you can also get an address that was previously generated.
+If you have not generated it earlier, it will be generated automatically
 
 ```
 GET /v1/private/get-deposit-address
@@ -1393,15 +2140,15 @@ GET /v1/private/get-deposit-address
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `currency`  | Yes | Valid currency name
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
-| `wallet`  | Yes | Crypto address which can be used for depositing 
+| `wallet`  | Yes | Crypto address which can be used for depositing
 
 **Response data example**
 
@@ -1413,7 +2160,7 @@ GET /v1/private/get-deposit-address
 
 ### Withdraw
 
-Withdraws user's funds from the account to a specified address 
+Withdraws user's funds from the account to a specified address
 
 ```
 POST /v1/private/create-withdrawal
@@ -1421,7 +2168,7 @@ POST /v1/private/create-withdrawal
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `currency`  | Yes | Valid currency name
 | `amount`  | Yes | Decimal amount value
@@ -1430,7 +2177,7 @@ POST /v1/private/create-withdrawal
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `payment_id`  | Yes | Is a unique payment identifier.
 
@@ -1444,7 +2191,7 @@ POST /v1/private/create-withdrawal
 
 ### Get information about withdrawal
 
-Returns the information about a previously made withdrawal 
+Returns the information about a previously made withdrawal
 
 ```
 GET /v1/private/get-withdrawal
@@ -1452,13 +2199,13 @@ GET /v1/private/get-withdrawal
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `payment_id`  | Yes | Valid payment id
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `status`  | Yes | Withdrawal status
 | `currency`  | Yes | Currency name
@@ -1498,7 +2245,7 @@ GET /v1/public/get-trade-pairs
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_pair`  | Yes | Trading pair name
 | `base_currency`  | Yes | Base currency
@@ -1532,7 +2279,7 @@ GET /v1/public/get-order-book
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_pair`  | Yes | Valid trading pair name
 | `type`  | Yes | AGGREGATED, BEST or FULL. Currently only AGGREGATED supported
@@ -1562,7 +2309,7 @@ GET /v1/public/get-trades
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_pair`  | Yes | Valid trading pair name
 | `limit`  | No | Max 500. Default 100
@@ -1570,12 +2317,12 @@ GET /v1/public/get-trades
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_id`  | Yes | A number, an internal unique identifier of a trade
 | `price` | Yes | Decimal price value, at which a trade was executed
 | `amount` | Yes | Decimal amount value
-| `time`  | Yes | Unix timestamp in UTC timezone. Trade execution time 
+| `time`  | Yes | Unix timestamp in UTC timezone. Trade execution time
 
 **Response data example:**
 
@@ -1606,7 +2353,7 @@ GET /v1/public/get-candles
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_pair`  | Yes | Valid trading pair name
 | `interval`  | Yes | Supported candles interval
@@ -1617,15 +2364,15 @@ Maximum data points that can be requested is 300 candles.
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `open` | Yes | Decimal price value, at which the first trade was executed within a candle period
-| `high` | Yes | Maximum decimal price value, at which a trade was executed within a candle period 
+| `high` | Yes | Maximum decimal price value, at which a trade was executed within a candle period
 | `low` | Yes | Minimum decimal price value, at which a trade was executed within a candle period
-| `close` | Yes | Decimal price value, at which the last trade was executed within a candle period 
-| `avg` | Yes | Average decimal price value of trades executed within a candle period 
+| `close` | Yes | Decimal price value, at which the last trade was executed within a candle period
+| `avg` | Yes | Average decimal price value of trades executed within a candle period
 | `base_volume` | Yes | Trading volume in a base currency within a candle period
-| `time`  | Yes | Unix timestamp in UTC timezone. Candle start time 
+| `time`  | Yes | Unix timestamp in UTC timezone. Candle start time
 
 **Response data example**
 
@@ -1662,18 +2409,18 @@ GET /v1/public/get-24hrs-stat
 
 **REQUEST PARAMETRS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `trade_pair`  | Yes | Valid trading pair name
 
 **RESPONSE FIELDS**
 
-| Param name      | Required | Description          
+| Param name      | Required | Description
 | :-------------: |:-------------:|:-------------|
 | `open` | Yes | Decimal price value, at which the first trade was executed within a candle period
 | `high` | Yes | Maximum decimal price value, at which a trade  was executed within a candle period
 | `low` | Yes | Minimum decimal price value, at which a trade was executed within a candle period
-| `base_volume` | Yes | Trading volume in a base currency within a candle period 
+| `base_volume` | Yes | Trading volume in a base currency within a candle period
 
 **Response data example**
 
