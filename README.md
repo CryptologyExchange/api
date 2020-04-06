@@ -943,9 +943,9 @@ Request example
 
 ```
 
- ## Responses
+## Responses
 
- Response example:
+Response example
 
 ```json
 {
@@ -963,14 +963,14 @@ Request example
 
 ```
 
- **Params:**
+**Params:**
 
- | Name            | Type | Description                                                                                                                                                                                                                                                     | Required | Constraints                                          |
- | --------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------- |
- | `type`  | enum | Message type                                                                                                                                                                                                                                                   | Yes      | One of documented message types |
- | `message_id`     | string  | Is an unique value indicating message order on server and used by the client to skip processed events on reconnect. You can start messages receiving from specific id by sending Msg-Id header with authentication request | Yes      |                                                      |
- | `time`       | int  | Time of operation performed                                                                                                                                                                                                                                     | Yes      | Valid timestamp, nanoseconds                                      |
- | `payload`              | json | Body of message                                                                    | Yes |   |  |
+| Name            | Type | Description | Required | Constraints                                          |
+| --------------- | ---- | ----------- | -------- | ---------------------------------------------------- |
+| `type`  | enum  | Message type | Yes      | One of documented message types |
+| `message_id`     | string  | Is an unique value indicating message order on server and used by the client to skip processed events on reconnect. You can start messages receiving from specific id by sending Msg-Id header with authentication request | Yes      |   |
+| `time`       | int  | Time of operation performed  | Yes      | Valid timestamp, nanoseconds  |
+| `payload`    | json | Body of message     | Yes |   |
 
 
 ## Server messages
